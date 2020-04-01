@@ -1,0 +1,145 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.documentdetect.service;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.modules.documentdetect.entity.Documentarydetails;
+import com.jeeplus.modules.documentdetect.mapper.DocumentarydetailsMapper;
+import com.jeeplus.modules.documentdetect.entity.Feedback;
+import com.jeeplus.modules.documentdetect.mapper.FeedbackMapper;
+import com.jeeplus.modules.sys.entity.DictValue;
+import com.jeeplus.modules.sys.utils.DictUtils;
+
+/**
+ * 工单详情Service
+ * @author liang
+ * @version 2019-08-05
+ */
+@Service
+@Transactional(readOnly = true)
+public class DocumentarydetailsService extends CrudService<DocumentarydetailsMapper, Documentarydetails> {
+
+	@Autowired
+	private FeedbackMapper feedbackMapper;
+	
+	@Autowired
+	private DocumentarydetailsMapper documentarydetailsMapper;
+	
+	public Integer findcount(Date begin, Date end) {
+		Integer count = feedbackMapper.findcount(begin, end);
+		return count;
+	}
+	
+	public List<Feedback> getFeedbackList(Documentarydetails documentarydetails) {
+		List<Feedback> list = feedbackMapper.findList(new Feedback(documentarydetails));
+		return list;
+	}
+	
+	
+	public Documentarydetails getIdBySbillno(String sbillno) {
+		Documentarydetails documentarydetails = documentarydetailsMapper.getIdBySbillno(sbillno);
+		return documentarydetails;
+	}
+	
+	public Documentarydetails get(String id) {
+		Documentarydetails documentarydetails = super.get(id);
+		documentarydetails.setFeedbackList(feedbackMapper.findList(new Feedback(documentarydetails)));
+		
+		//获取去掉尾部-的单号
+		String billnos = documentarydetails.getSbillno();
+		String billno = billnos.substring(billnos.length() - 4);
+		if (billno.contains("-")) {
+			//获取前十天日期
+			Date end = documentarydetails.getReportTime();
+			Calendar ca = Calendar.getInstance();
+			ca.setTime(end);
+			ca.add(Calendar.DAY_OF_MONTH, -10);  //设置为前1天
+			Date start = ca.getTime();   //得到前1天的
+			Documentarydetails repetitiveDocument = new Documentarydetails();
+			String sb = billnos.substring(0, billnos.lastIndexOf("-"));
+			repetitiveDocument.setSbillno(sb);
+			repetitiveDocument.setBeginReportTime(start);
+			repetitiveDocument.setEndReportTime(end);
+			documentarydetails.setRepetitiveDocument(documentarydetailsMapper.getRepetitiveBySbillno(repetitiveDocument));
+		}
+		return documentarydetails;
+	}
+	
+	public List<Documentarydetails> findList(Documentarydetails documentarydetails) {
+		return super.findList(documentarydetails);
+	}
+	
+	public Page<Documentarydetails> findPage(Page<Documentarydetails> page, Documentarydetails documentarydetails) {
+		if (!"".equals(documentarydetails.getRelation()) && documentarydetails.getRelation() != null ) {
+			//设置分页参数
+			documentarydetails.setPage(page);
+			List<Documentarydetails> list = documentarydetailsMapper.findHotList(documentarydetails);
+			page.setList(list);
+			return page;
+		} else {
+			return super.findPage(page, documentarydetails);
+		}
+		
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Documentarydetails documentarydetails) {
+		super.save(documentarydetails);
+		for (Feedback feedback : documentarydetails.getFeedbackList()){
+			if (feedback.getId() == null){
+				continue;
+			}
+			if (Feedback.DEL_FLAG_NORMAL.equals(feedback.getDelFlag())){
+				if (StringUtils.isBlank(feedback.getId())){
+					feedback.setDocumentarydetails(documentarydetails);
+					feedback.preInsert();
+					feedbackMapper.insert(feedback);
+				}else{
+					feedback.preUpdate();
+					feedbackMapper.update(feedback);
+				}
+			}else{
+				feedbackMapper.delete(feedback);
+			}
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Documentarydetails documentarydetails) {
+		super.delete(documentarydetails);
+		feedbackMapper.delete(new Feedback(documentarydetails));
+	}
+	
+	//根据故障种类和故障时间获取原始工单列表
+	public Page<Documentarydetails> findFaultCategoryDataPage(Page<Documentarydetails> page,
+			Documentarydetails entity) {
+		dataRuleFilter(entity);
+		entity.setPage(page);
+		if("其他".equals(entity.getSfaultcategory())) {
+			//获取五大申告种类
+			List<String> fiveFaultcategory = new ArrayList<String>();
+			List<DictValue> fiveFaultcategoryDict = DictUtils.getDictList("fiveFaultcategory");
+			for (DictValue kv : fiveFaultcategoryDict) {
+				fiveFaultcategory.add(kv.getValue());
+			}
+			fiveFaultcategory.remove("其他");
+			entity.setUselessFaultcategory(fiveFaultcategory);
+			entity.setSfaultcategory("");//不作为查询条件
+		}
+		page.setList(documentarydetailsMapper.findFaultCategoryDataList(entity));
+		return page;
+	}
+	
+}

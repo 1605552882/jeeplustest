@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.treatmentorder.mapper.SdTreatmentOrderLogMapper">
+    
+	<sql id="sdTreatmentOrderLogColumns">
+		a.id AS "id",
+		a.orderno AS "orderno",
+		a.reqid AS "reqid",
+		a.offerid AS "offerid",
+		a.patientid AS "patientid.id",
+		a.doctorid AS "doctorid.id",
+		a.orderstate AS "orderstate",
+		a.createtime AS "createtime",
+		a.receptionfee AS "receptionfee",
+		a.receptiontime AS "receptiontime",
+		a.doconfirmstate AS "doconfirmstate",
+		a.doconfirmtime AS "doconfirmtime",
+		a.paconfirmstate AS "paconfirmstate",
+		a.paconfirmtime AS "paconfirmtime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+				
+				
+				
+				
+		patientid.fullname AS "patientid.fullname",
+				
+		doctorid.fullname AS "doctorid.fullname"
+	</sql>
+	
+	<sql id="sdTreatmentOrderLogJoins">
+		
+		LEFT JOIN sd_patient_inf patientid ON patientid.id = a.patientid
+		LEFT JOIN sd_doctor_inf doctorid ON doctorid.id = a.doctorid
+	</sql>
+	
+    
+	<select id="get" resultType="SdTreatmentOrderLog" >
+		SELECT 
+			<include refid="sdTreatmentOrderLogColumns"/>
+		FROM sd_treatment_order_log a
+		<include refid="sdTreatmentOrderLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdTreatmentOrderLog" >
+		SELECT 
+			<include refid="sdTreatmentOrderLogColumns"/>
+		FROM sd_treatment_order_log a
+		<include refid="sdTreatmentOrderLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="orderno != null and orderno != ''">
+				AND a.orderno = #{orderno}
+			</if>
+			<if test="patientid != null and patientid.id != null and patientid.id != ''">
+				AND a.patientid = #{patientid.id}
+			</if>
+			<if test="doctorid != null and doctorid.id != null and doctorid.id != ''">
+				AND a.doctorid = #{doctorid.id}
+			</if>
+			<if test="orderstate != null and orderstate != ''">
+				AND a.orderstate = #{orderstate}
+			</if>
+			<if test="receptiontime != null and receptiontime != ''">
+				AND a.receptiontime = #{receptiontime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdTreatmentOrderLog" >
+		SELECT 
+			<include refid="sdTreatmentOrderLogColumns"/>
+		FROM sd_treatment_order_log a
+		<include refid="sdTreatmentOrderLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_treatment_order_log(
+			orderno,
+			reqid,
+			offerid,
+			patientid,
+			doctorid,
+			orderstate,
+			createtime,
+			receptionfee,
+			receptiontime,
+			doconfirmstate,
+			doconfirmtime,
+			paconfirmstate,
+			paconfirmtime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{orderno},
+			#{reqid},
+			#{offerid},
+			#{patientid.id},
+			#{doctorid.id},
+			#{orderstate},
+			#{createtime},
+			#{receptionfee},
+			#{receptiontime},
+			#{doconfirmstate},
+			#{doconfirmtime},
+			#{paconfirmstate},
+			#{paconfirmtime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_treatment_order_log SET 	
+			orderno = #{orderno},
+			reqid = #{reqid},
+			offerid = #{offerid},
+			patientid = #{patientid.id},
+			doctorid = #{doctorid.id},
+			orderstate = #{orderstate},
+			createtime = #{createtime},
+			receptionfee = #{receptionfee},
+			receptiontime = #{receptiontime},
+			doconfirmstate = #{doconfirmstate},
+			doconfirmtime = #{doconfirmtime},
+			paconfirmstate = #{paconfirmstate},
+			paconfirmtime = #{paconfirmtime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_treatment_order_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_treatment_order_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdTreatmentOrderLog" statementType="STATEMENT">
+		select * FROM sd_treatment_order_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.statistichotword.mapper.StatistichotwordMapper">
+    
+	<sql id="statistichotwordColumns">
+		a.id AS "id",
+		a.hotword AS "hotword",
+		a.sStatus AS "sStatus",
+		a.times AS "times",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="statistichotwordJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Statistichotword" >
+		SELECT 
+			<include refid="statistichotwordColumns"/>
+		FROM statistichotword a
+		<include refid="statistichotwordJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Statistichotword" >
+		SELECT 
+			hotword,count(*)as times,create_date as createDate
+		FROM hotworddetails a
+		<include refid="statistichotwordJoins"/>
+		<where>
+			<if test="hotword != null and hotword != ''">
+				AND a.hotword LIKE 
+					<if test="dbName == 'oracle'">'%'||#{hotword}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{hotword}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{hotword},'%')</if>
+			</if>
+			<if test="beginCreateDate != null and endCreateDate != null and beginCreateDate != '' and endCreateDate != ''">
+				AND a.create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+			</if>
+			<if test="createDate != null and createDate != '' ">
+				AND a.create_date = #{createDate}
+			</if>
+			<if test="sStatus != null and sStatus != '' ">
+				AND a.sStatus = #{sStatus}
+			</if>
+		</where>
+		GROUP BY hotword,create_date ORDER BY create_date ,times desc
+	</select>
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Statistichotword" statementType="STATEMENT">
+		select * FROM statistichotword  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

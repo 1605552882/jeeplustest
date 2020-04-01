@@ -1,0 +1,573 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+var isOnlyOneCategory = false;
+var isOnlyOneCity = false;
+var searchCategory = "";
+var searchCity = "";
+$(document).ready(function() {
+	
+	 //初始化开始时间和结束时间
+	 var weekBefore = new Date(new Date().getTime()-3600*1000*24*7);
+	 var weekBeforeBegin = new Date(weekBefore);//一星期前开始
+	 weekBeforeBegin.setHours(0);
+	 weekBeforeBegin.setMinutes(0);
+	 weekBeforeBegin.setSeconds(0);
+	 
+	 var yesterday = new Date(new Date().getTime()-3600*1000*24);
+	 var yesterdayEnd = new Date(yesterday);//昨天结束
+	 yesterdayEnd.setHours(23);
+	 yesterdayEnd.setMinutes(59);
+	 yesterdayEnd.setSeconds(59);
+	 $('#beginCreateDate').datetimepicker({
+		 format: "YYYY-MM-DD 00:00:00",
+		 defaultDate:weekBeforeBegin
+	}).bind('dp.change', function(e) {updateContrastDate()});
+	$('#endCreateDate').datetimepicker({
+		 format: "YYYY-MM-DD 23:59:59",
+		 defaultDate:yesterdayEnd
+	}).bind('dp.change', function(e) {updateContrastDate()});
+	 //初始化环比同比开始时间和结束时间
+	 var twoWeekBefore = new Date(new Date().getTime()-3600*1000*24*7);
+	 var twoWeekBeforeBegin = new Date(twoWeekBefore);//两星期前开始
+	 twoWeekBeforeBegin.setHours(0);
+	 twoWeekBeforeBegin.setMinutes(0);
+	 twoWeekBeforeBegin.setSeconds(0);
+	 
+	 var oneWeekBefore = new Date(new Date().getTime()-3600*1000*24);
+	 var oneWeekEnd = new Date(oneWeekBefore);//一星期前结束
+	 oneWeekEnd.setHours(23);
+	 oneWeekEnd.setMinutes(59);
+	 oneWeekEnd.setSeconds(59);
+	$('#beginContrastDate').datetimepicker({
+		 format: "YYYY-MM-DD 00:00:00",
+		 defaultDate:twoWeekBeforeBegin
+	});
+	$('#endContrastDate').datetimepicker({
+		 format: "YYYY-MM-DD 23:59:59",
+		 defaultDate:oneWeekEnd
+	});
+	
+	//查询
+	getData();
+	
+	  $("#search").click("click", function() {// 绑定查询按扭
+		  getData();
+		});
+	 
+	 $("#reset").click("click", function() {// 绑定查询按扭
+		  $("#searchForm  input").val("");
+		  $("#searchForm  select").val("");
+		  $("#searchForm  .select-item").html("");
+		  $("#timeFlag").val("1");//天
+		  $("#contrastFlag").val("");//对比
+		  $("#groupFlag").val("1");//分组
+		  $('#beginCreateDate').data("DateTimePicker").format("YYYY-MM-DD 00:00:00").date(weekBeforeBegin)
+		  $('#endCreateDate').data("DateTimePicker").format("YYYY-MM-DD 23:59:59").date(yesterdayEnd)
+		  $("#contrastDiv").hide();
+		  getData();
+		});
+	 
+		$("#timeFlag").change(function(){
+			if($("#timeFlag").val()=="1"){
+				$('#beginCreateDate').data("DateTimePicker").format("YYYY-MM-DD 00:00:00")
+				$('#endCreateDate').data("DateTimePicker").format("YYYY-MM-DD 23:59:59")
+				$('#beginContrastDate').data("DateTimePicker").format("YYYY-MM-DD 00:00:00")
+				$('#endContrastDate').data("DateTimePicker").format("YYYY-MM-DD 23:59:59")
+			}else if($("#timeFlag").val()=="2"){
+				$('#beginCreateDate').data("DateTimePicker").format("YYYY-MM")
+				$('#endCreateDate').data("DateTimePicker").format("YYYY-MM")
+				$('#beginContrastDate').data("DateTimePicker").format("YYYY-MM")
+				$('#endContrastDate').data("DateTimePicker").format("YYYY-MM")
+			}
+			updateContrastDate();
+		})
+
+		$("#contrastFlag").change(function(){
+			if($("#contrastFlag").val()==""){
+				$("#contrastDiv").hide();
+			}else if($("#contrastFlag").val()=="1"){
+				$("#contrastDiv").show();
+				$("#contrastLabel").html("&nbsp;环比时间：");
+			}else if($("#contrastFlag").val()=="2"){
+				$("#contrastDiv").show();
+				$("#contrastLabel").html("&nbsp;同比时间：");
+			}
+			updateContrastDate();
+		});
+		
+		$("input[name='beginCreateDate'],input[name='endCreateDate']").change(function(){
+			if($("#contrastFlag").val()==""){
+				$("#contrastDiv").hide();
+			}else if($("#contrastFlag").val()=="1"){
+				$("#contrastDiv").show();
+				$("#contrastLabel").html("&nbsp;环比时间：");
+			}else if($("#contrastFlag").val()=="2"){
+				$("#contrastDiv").show();
+				$("#contrastLabel").html("&nbsp;同比时间：");
+			}
+			updateContrastDate();
+		});
+		
+		$("#timeFlag,#contrastFlag,#groupFlag").change(function(){
+			getData();
+		});
+		
+	});
+
+	
+	function getData(){
+		if($("input[name=beginCreateDate]").val()=="" || $("input[name=endCreateDate]").val()==""){
+			jp.warning("申告时间不能为空");
+			return;
+		}
+		
+        jp.post("${ctx}/faultcategorystatistic/faultcategorystatistic/data",$("#searchForm").serialize(), function (data) {
+        	if(data.success == false){
+        		//查询失败
+        		jp.alert(data.msg);
+        		return;
+        	}
+        	//查询成功
+        	data = data.body.data;
+        	data.timeFlag = $("#timeFlag").val();
+        	initMyChart(data);
+        	if(data.faultcategoryList.length==1){
+        		isOnlyOneCategory = true;
+        		searchCategory = data.faultcategoryList[0];
+        	}else{
+        		isOnlyOneCategory = false;
+        	}
+        	if(data.cityList.length==1){
+        		isOnlyOneCity = true;
+        		searchCity = data.cityList[0];
+        	}else{
+        		isOnlyOneCity = false;
+        	}
+        });
+	}
+
+  	function initMyChart(data){
+  		var groupList = $.extend(true, [], (data.queryParams.groupFlag=="1"?data.faultcategoryLabelList:data.cityLabelList));
+  		option = {
+  			//自定义颜色
+  			color:['#fff143','#c9dd22','#ff2d51','#44cef6','#d6ecf0','#ff8c31','#9ed048','#ffb3a7','#ffc64b','#f05654','#4a4266','#bbcdc5','#d9b611','#0c8918','#c83c23','#8d4bbb','#75878a','#e29c45','#00e09e','#f35336','#003371','#3d3b4f','#ca6924','#7fecad','#a98175','#b0a4e3','#5d513c','#9b4400','#1bd1a5','#ff0097','#e4c6d0','#312520','#896c39','#789262','#c91f37','#7c4b00','#424c50','#9d2933','#622a1d'],
+
+  		    tooltip : {
+  		        trigger: 'axis',
+  		        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+  		            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+  		        }
+  		    },
+  		    
+	  		  toolbox: {
+	            show: true,
+				padding:[20,5,5,5],//避免legend和toolbox重叠
+	            feature: {
+	                dataView: { 
+	                    readOnly: false
+	                }, //数据视图
+	                magicType: {
+	                    type: ['line', 'bar']
+	                },  //切换为折线图，切换为柱状图
+	                restore: {},  //还原
+	                saveAsImage: {}   //保存为图片
+	  		    }
+	  		  },
+  		    
+  		    legend: {
+  		    	type: 'scroll',
+  		    	data:groupList
+  		    },
+  		    grid: {
+  		        left: '3%',
+  		        right: '4%',
+  		        bottom: '3%',
+  		        containLabel: true
+  		    },
+  		    xAxis : [
+  		        {
+  		            type : 'category',
+  		            data : data.datefmt
+  		        }
+  		    ],
+  		    yAxis : [{
+  		            type: 'value',
+  		            name: '工单量',
+  		            position: 'left',
+  		            axisLabel: {
+  		                formatter: '{value}'
+  		            }
+  		        }],
+  		    series : []
+  		};
+  		
+		//设置高度
+		$("#mychart").css('height',window.screen.height/2);
+		if(data.queryParams.groupFlag=="1"){
+			//申告种类
+			for(var i=0; i<data.faultcategoryLabelList.length; i++){
+				var item = {
+			            name:data.faultcategoryLabelList[i],
+			            type:'bar',
+			            stack: 'stack',
+			            barWidth: '50%',
+			            data:data.data[i]
+			        };
+				option.series[i] = item;
+			}
+		}else{
+			//申告来源
+			for(var i=0; i<data.cityLabelList.length; i++){
+				var item = {
+			            name:data.cityLabelList[i],
+			            type:'bar',
+			            stack: 'stack',
+			            barWidth: '50%',
+			            data:data.data[i]
+			        };
+				option.series[i] = item;
+			}
+		}
+		
+  		if(data.queryParams.contrastFlag == ""){
+  			//列表
+  		}else if(data.queryParams.contrastFlag == "1"){
+  			//环比
+  			option.legend.data.push("环比");
+  			option.yAxis.push({
+  		            type: 'value',
+  		            name: '环比（%）',
+  		            position: 'right',
+  		            axisLabel: {
+  		                formatter: '{value}'
+  		            },
+		            show:true
+  		        });
+  			option.series.push({
+  	            name:'环比',
+  	            type:'line',
+  	            yAxisIndex: 1,
+  	            data:data.contrastPercent
+  	        });
+  		}else if(data.queryParams.contrastFlag == "2"){
+  			//同比
+  			option.legend.data.push("同比");
+  			option.yAxis.push({
+		            type: 'value',
+		            name: '同比（%）',
+		            position: 'right',
+		            axisLabel: {
+		                formatter: '{value}'
+		            },
+		            show:true
+		        });
+  			option.series.push({
+  	            name:'同比',
+  	            type:'line',
+  	            yAxisIndex: 1,
+  	            data:data.contrastPercent
+  	        });
+  		}
+  		
+		var myChart = echarts.init(document.getElementById("mychart"));
+		myChart.off('click');
+		myChart.setOption(option,true);
+		
+		//选中的图例
+		var selected;
+		myChart.on('legendselectchanged', function(params) {
+			selected = params.selected;
+		});
+		
+		//折线图不堆叠
+        myChart.on('magictypechanged', params => {
+            if(params.currentType==='line'){
+                for(let i in params.newOption.series){
+                    params.newOption.series[i].stack=null
+
+                }
+                myChart.setOption(params.newOption)
+
+            }
+            if(params.currentType==='bar'){
+                for(let i in params.newOption.series){
+                    params.newOption.series[i].stack="stack"
+
+                }
+                myChart.setOption(params.newOption)
+
+            }
+        });
+		
+		//点击事件
+		myChart.on('click', function (params) {
+			var xParam = params.name;//x轴坐标
+			if(params.seriesName=="环比" || params.seriesName=="同比"){
+				//点击折线图
+				 var xParamIndex;
+	   			 for(var k=0; k<data.datefmt.length; k++){
+	   				 if(data.datefmt[k]==xParam){
+	   					 xParamIndex = k;
+	   					 break;
+	   				 }
+	   			 }
+	   			 firstDate = data.dateContrastfmt[xParamIndex];
+				initMyTable(firstDate,xParam,params.seriesName);//参数1和2和3分别是对比的日期，对比方式
+				return
+			}
+			//点击柱状图
+			var day = "";
+			/*
+	        if(params.componentType != "xAxis" && params.componentType != "yAxis"){
+	        	day = params.name;//x轴坐标
+	        }*/
+	        day = params.name;//x轴坐标
+	        if(day != "" && data.datefmt.indexOf(day)!=-1){
+	        	var index = data.datefmt.indexOf(day);//哪一天
+	        	data.day = day;
+	        	var arr = [];
+	        	
+	    		if(data.queryParams.groupFlag=="1"){
+	    			//申告种类
+		        	for(var i=0; i<data.faultcategoryList.length; i++){
+		        		arr[i] = data.data[i][index];
+		        	}
+		        	data.daydata = arr;
+		            //只有一个分类直接跳转到饼图
+		            if(isOnlyOneCategory){
+		            	data.faultcategory = searchCategory;//查询种类
+				        localStorage.setItem("faultcategorychartdata",JSON.stringify(data));
+						jp.openDialogView(data.day+" "+data.faultcategory,"${ctx}/faultcategorystatistic/faultcategorystatistic/subPie",window.screen.width*0.8+"", window.screen.height*0.7+"");
+		            }else{//否则跳转到柱状图
+		            	localStorage.setItem("faultcategorylistdata",JSON.stringify(data));
+		            	jp.openDialogView(day,"${ctx}/faultcategorystatistic/faultcategorystatistic/subChart",window.screen.width*0.8+"", window.screen.height*0.7+"");
+		            }
+	    		}else{
+	    			//申告来源
+		        	for(var i=0; i<data.cityList.length; i++){
+		        		arr[i] = data.data[i][index];
+		        	}
+		        	data.daydata = arr;
+		            //只有一个来源直接跳转到饼图
+		            if(isOnlyOneCity){
+		            	data.city = searchCity;//查询来源
+				        localStorage.setItem("faultcategorychartdata",JSON.stringify(data));
+						jp.openDialogView(data.day+" "+data.city,"${ctx}/faultcategorystatistic/faultcategorystatistic/subPie",window.screen.width*0.8+"", window.screen.height*0.7+"");
+		            }else{//否则跳转到柱状图
+		            	localStorage.setItem("faultcategorylistdata",JSON.stringify(data));
+		            	jp.openDialogView(day,"${ctx}/faultcategorystatistic/faultcategorystatistic/subChart",window.screen.width*0.8+"", window.screen.height*0.7+"");
+		            }
+	    		}
+	  		}
+		})
+		
+  	}
+  	
+  	function initMyTable(firstDate,xParam,contrastType){
+  		$('#mytable').bootstrapTable("destroy");
+  		$('#mytable').bootstrapTable({
+  		  //请求方法
+                 method: 'get',
+                 //类型json
+                 dataType: "json",
+                 contentType: "application/x-www-form-urlencoded",
+                 //显示刷新按钮
+                 showRefresh: true,
+                 //显示切换手机试图按钮
+                 //showToggle: true,
+                 //显示 内容列下拉框
+      	       //showColumns: true,
+      	       //显示到处按钮
+      	       showExport: true,
+      	       //显示切换分页按钮
+      	       showPaginationSwitch: true,
+      	       //显示详情按钮
+      	       //detailView: true,
+      	       	//显示详细内容函数
+  	          // detailFormatter: "detailFormatter",
+      	       //最低显示2行
+      	       minimumCountColumns: 2,
+                 //是否显示行间隔色
+                 striped: true,
+                 //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）     
+                 cache: false,    
+                 //是否显示分页（*）  
+                 pagination: true,   
+                  //排序方式 
+                 sortOrder: "asc",  
+                 //初始化加载第一页，默认第一页
+                 pageNumber:1,   
+                 //每页的记录行数（*）   
+                 pageSize: 10,  
+                 //可供选择的每页的行数（*）    
+                 pageList: [10, 25, 50, 100],
+                 fixedColumns: true, 
+                 fixedNumber: 1,
+                 //这个接口需要处理bootstrap table传递的固定参数,并返回特定格式的json数据  
+                 url: "${ctx}/faultcategorystatistic/faultcategorystatistic/data",
+                 //默认值为 'limit',传给服务端的参数为：limit, offset, search, sort, order Else
+                 //queryParamsType:'',   
+                 ////查询参数,每次调用是会带上这个参数，可自定义                         
+                 queryParams : function(params) {
+                 	var searchParam = $("#searchForm").serialize();
+                 	searchParam.pageNo = params.limit === undefined? "1" :params.offset/params.limit+1;
+                 	searchParam.pageSize = params.limit === undefined? -1 : params.limit;
+                 	searchParam.orderBy = params.sort === undefined? "" : params.sort+ " "+  params.order;
+                     return searchParam;
+                 },
+                 responseHandler:function(res){
+                 	if(res.success == false){
+                		//查询失败
+                		jp.alert(res.msg);
+                		return;
+                	}
+                	//查询成功
+                 	res = res.body.data;
+                	 
+                	 var temp = [];
+                	 var percent = "-";
+                	 //点击折线图时x轴坐标
+                	 var xParamIndex;
+        			 for(var k=0; k<res.datefmt.length; k++){
+        				 if(res.datefmt[k]==xParam){
+        					 xParamIndex = k;
+        					 break;
+        				 }
+        			 }
+        			 
+        			 var totalFirst = 0;
+            		 var totalSecond = 0;
+            		 var totalPercent = "-";
+                	 if(res.queryParams.groupFlag == "1"){//申告种类\
+                		 for(var i=0;i<res.faultcategoryList.length; i++){
+                			 totalFirst += res.contrastData[i][xParamIndex];
+                			 totalSecond += res.data[i][xParamIndex];
+                			 percent = "-";
+                    		 if(res.contrastData[i][xParamIndex]!=0){
+                 				percent = Math.round((res.data[i][xParamIndex]-res.contrastData[i][xParamIndex])/res.contrastData[i][xParamIndex] * 10000) / 100.00 + "%";
+                 			 }
+                    		 temp.push({
+                				 "groupList":res.faultcategoryLabelList[i],
+                				 "firstDate":res.contrastData[i][xParamIndex],
+                    		 	 "secondDate":res.data[i][xParamIndex],
+                    		 	 "contrast":res.data[i][xParamIndex]-res.contrastData[i][xParamIndex],
+                    		 	 "percent":percent
+                    		 	 });
+                    	 }
+                		 if(totalFirst!=0){
+                			 totalPercent = Math.round((totalSecond-totalFirst)/totalFirst * 10000) / 100.00 + "%";
+              			 }
+                		 //合计
+                		 temp.push({
+        				 "groupList":"合计",
+        				 "firstDate":totalFirst,
+            		 	 "secondDate":totalSecond,
+            		 	 "contrast":totalSecond-totalFirst,
+            		 	 "percent":totalPercent
+            		 	 });
+                    	 return {"rows":temp,"total":res.faultcategoryList.length};
+            		 }else{//来源
+            			 for(var i=0;i<res.cityList.length; i++){
+            				 totalFirst += res.contrastData[i][xParamIndex];
+                			 totalSecond += res.data[i][xParamIndex];
+                			 percent = "-";
+                    		 if(res.contrastData[i][xParamIndex]!=0){
+                 				percent = Math.round((res.data[i][xParamIndex]-res.contrastData[i][xParamIndex])/res.contrastData[i][xParamIndex] * 10000) / 100.00 + "%";
+                 			 }
+                    		 temp.push({
+                				 "groupList":res.cityLabelList[i],
+                				 "firstDate":res.contrastData[i][xParamIndex],
+                    		 	 "secondDate":res.data[i][xParamIndex],
+                    		 	 "contrast":res.data[i][xParamIndex]-res.contrastData[i][xParamIndex],
+                    		 	 "percent":percent
+                    		 	 });
+                    	 }
+            			 if(totalFirst!=0){
+                			 totalPercent = Math.round((totalSecond-totalFirst)/totalFirst * 10000) / 100.00 + "%";
+              			 }
+                		 //合计
+                		 temp.push({
+        				 "groupList":"合计",
+        				 "firstDate":totalFirst,
+            		 	 "secondDate":totalSecond,
+            		 	 "contrast":totalSecond-totalFirst,
+            		 	 "percent":totalPercent
+            		 	 });
+                    	 return {"rows":temp,"total":res.cityList.length};
+            		 }
+                 },
+                 //分页方式：client客户端分页，server服务端分页（*）
+                 sidePagination: "server",
+                 //contextMenuTrigger:"right",//pc端 按右键弹出菜单
+                 //contextMenuTriggerMobile:"press",//手机端 弹出菜单，click：单击， press：长按。
+                 //contextMenu: '#context-menu',
+                 onContextMenuItem: function(row, $el){},
+                 /*onClickRow: function(row, $el){
+                 },*/
+                 columns: [/*{
+  		        checkbox: true
+  		       
+  		    }
+  			,*/{
+  		        field: 'groupList',
+  		        title: $("#groupFlag").find("option:selected").text(),
+  		        width : '30%'
+  			   },{
+  	  		        field: 'firstDate',
+  	  		        title: firstDate,
+  	  		        width : '30%'
+  			   },{
+  	  		        field: 'secondDate',
+  	  		        title: xParam,
+  	  		        width : '30%'
+  			   },{
+  	  		        field: 'contrast',
+  	  		        title: '对比',
+  	  		        width : '20%'
+  			   },{
+  	  		        field: 'percent',
+  	  		        title: contrastType,
+  	  		        width : '20%'
+  			   }
+  		     ]
+  		
+  		});
+  	}
+  	
+  	//更新同比和环比的日期
+  	function updateContrastDate(){
+		if($("#contrastFlag").val()==""){
+			$("#contrastDiv").hide();
+		}else if($("#contrastFlag").val()=="1"){
+			$("#contrastDiv").show();
+			$("#contrastLabel").html("&nbsp;环比时间：");
+			//获取申告开始时间和结束时间
+			var mydate1 = new Date($("input[name='beginCreateDate']").val());
+			var mydate2 = new Date($("input[name='endCreateDate']").val());
+			if($("#timeFlag").val()=="1"){//天
+				var timeoffset = mydate2.getTime()-mydate1.getTime();//间隔毫秒
+				console.log(Math.ceil(timeoffset/(24*3600*1000)));
+				mydate1.setTime(mydate1.getTime()-Math.ceil(timeoffset/(24*3600*1000))*24*3600*1000);
+				mydate2.setTime(mydate2.getTime()-Math.ceil(timeoffset/(24*3600*1000))*24*3600*1000);
+				$('#beginContrastDate').data("DateTimePicker").date(mydate1)
+				$('#endContrastDate').data("DateTimePicker").date(mydate2)
+			}else{//月
+				var monthoffset = (mydate2.getFullYear()*12+mydate2.getMonth()) - (mydate1.getFullYear()*12+mydate1.getMonth())
+				mydate1.setMonth(mydate1.getMonth()-1-monthoffset,1)
+				mydate2.setMonth(mydate2.getMonth()-1-monthoffset,1)
+				$('#beginContrastDate').data("DateTimePicker").date(mydate1)
+				$('#endContrastDate').data("DateTimePicker").date(mydate2)
+			}
+		}else if($("#contrastFlag").val()=="2"){
+			$("#contrastDiv").show();
+			$("#contrastLabel").html("&nbsp;同比时间：");
+			//获取申告开始时间和结束时间
+			var mydate1 = new Date($("input[name='beginCreateDate']").val());
+			var mydate2 = new Date($("input[name='endCreateDate']").val());
+			mydate1.setFullYear(mydate1.getFullYear()-1);
+			mydate2.setFullYear(mydate2.getFullYear()-1);
+			$('#beginContrastDate').data("DateTimePicker").date(mydate1)
+			$('#endContrastDate').data("DateTimePicker").date(mydate2)
+		}
+	}
+</script>

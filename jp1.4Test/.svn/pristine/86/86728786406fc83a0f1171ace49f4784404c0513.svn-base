@@ -1,0 +1,35 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.statisticdocument.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.jeeplus.core.service.CrudService;
+import com.jeeplus.modules.statisticdocument.entity.Statisticdocument;
+import com.jeeplus.modules.statisticdocument.mapper.StatisticdocumentMapper;
+
+/**
+ * 表单统计Service
+ * @author lxy
+ * @version 2019-09-05
+ */
+@Service
+@Transactional(readOnly = true)
+public class StatisticdocumentService extends CrudService<StatisticdocumentMapper, Statisticdocument> {
+	
+	@Autowired
+	StatisticdocumentMapper statisticdocumentMapper;
+
+	public Statisticdocument get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Statisticdocument> find(Statisticdocument statisticdocument) {
+		return statisticdocumentMapper.find(statisticdocument);
+	}
+	
+}

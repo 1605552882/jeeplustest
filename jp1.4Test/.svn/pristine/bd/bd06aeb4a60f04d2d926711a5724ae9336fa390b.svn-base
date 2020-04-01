@@ -1,0 +1,97 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>AAA开户集成窗口</title>
+	<meta name="decorator" content="ani"/>
+	<script type="text/javascript">
+		var validateForm;
+		var $table; // 父页面table表格id
+		var $topIndex;//弹出窗口的 index
+		function doSubmit(table, index){//回调函数，在编辑和保存动作时，供openDialog调用提交表单。
+		  if(validateForm.form()){
+			  $table = table;
+			  $topIndex = index;
+			  jp.loading();
+			  $("#inputForm").submit();
+			  return true;
+		  }
+
+		  return false;
+		}
+
+		$(document).ready(function() {
+			validateForm = $("#inputForm").validate({
+				submitHandler: function(form){
+					jp.post("${ctx}/aaa/aAA/jckh",$('#inputForm').serialize(),function(data){
+						if(data.success){
+	                    	$table.bootstrapTable('refresh');
+	                    	jp.success(data.msg);
+	                    	jp.close($topIndex);//关闭dialog
+
+	                    }else{
+            	  			jp.error(data.msg);
+	                    }
+					})
+				},
+				errorContainer: "#messageBox",
+				errorPlacement: function(error, element) {
+					$("#messageBox").text("输入有误，请先更正。");
+					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+						error.appendTo(element.parent().parent());
+					} else {
+						error.insertAfter(element);
+					}
+				}
+			});
+			
+		});
+	</script>
+</head>
+<body class="bg-white">
+		<form id="inputForm" class="form-horizontal">
+		<table class="table table-bordered">
+		   <tbody>
+				<tr>
+					<td class="width-15 active"><label class="pull-right">手机号码：</label></td>
+					<td class="width-35">
+						<input class="form-control "/>
+					</td>
+					<td class="width-15 active"><label class="pull-right">CG国际漫游：</label></td>
+		   			<td class="width-35">
+						<input type="checkbox" />是否为CG国际漫游
+					</td>
+		  		</tr>
+		  		<tr>
+					<td class="width-15 active"><label class="pull-right">C网IMSI号码：</label></td>
+					<td class="width-35">
+						<input class="form-control "/>
+					</td>
+					<td class="width-15 active"><label class="pull-right">G网IMSI号码：</label></td>
+					<td class="width-35">
+						<input class="form-control "/>
+					</td>
+		  		</tr>
+		  		<tr>
+					<td class="width-15 active"><label class="pull-right">C网付费类型：</label></td>
+					<td class="width-35">
+						<select class="form-control">
+							<option value="A">A</option>
+							<option value="B">B</option>
+							<option value="C">C</option>
+						</select>
+					</td>
+					<td class="width-15 active"><label class="pull-right">G网付费类型：</label></td>
+					<td class="width-35">
+						<select class="form-control">
+							<option value="A">A</option>
+							<option value="B">B</option>
+							<option value="C">C</option>
+						</select>
+					</td>
+		  		</tr>
+		 	</tbody>
+		</table>
+	</form>
+</body>
+</html>

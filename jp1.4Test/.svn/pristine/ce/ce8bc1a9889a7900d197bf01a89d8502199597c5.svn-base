@@ -1,0 +1,66 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	$("#phoneSel").change(function(){
+	     var selVal=$(this).val();
+	     if(selVal==0){
+	    	 $("label[for='phoneNum']").html("IMSI号码"); 
+	     }else{
+	    	 $("label[for='phoneNum']").html("手机号码");
+	     }
+	  });
+	
+	 /**
+	   * HLR查询
+	   */    
+	  $("#search").click("click", function() {// 绑定查询按扭
+		  var phoneNum = $("#phoneNum").val();//电话号码
+		  var type = $("#phoneSel").val();//查询类型：1手机号  0IMSI号
+		  //每次查询都要先清空表单
+		  $('#hlrForm')[0].reset();
+		  $.ajax({
+				url:'${ctx}/hlr/hlrInfoFields/data',
+				dataType:'json',
+				data:{userNo:phoneNum,queryType:type},
+				type:'GET',
+				timeout:10000,
+				success:function(data,status){
+					var hlrInfo = data.hlrInfo;
+					$("#searchResult").val(hlrInfo.searchResult);
+					$("input[name='province']").val(hlrInfo.province);
+					$("input[name='area']").val(hlrInfo.area);
+					$("input[name='userStatus']").val(hlrInfo.userStatus);
+					//定义有授权激活的复选框数组
+					var hlrInfoJson = JSON.parse(JSON.stringify(hlrInfo));
+					var props = [ "withoutCondition", "whenBusy", "noAnswer", "defaultCall", "cfmn", "brtFunction",
+									"callWaiting", "noDisturb", "callDisplay1", "callDisplay2" ];
+					for ( var i = 0; i < props.length; i++) {
+						var prop = props[i];
+						var val = hlrInfoJson[prop];
+						if(val==0){//不授权 复选框不选中
+							$("input[name='"+prop+"']").each(function() {
+								$(this).prop("checked", false);
+							});
+						}else if(val==1){//授权并激活 复选框全选
+							$("input[name='"+prop+"']").each(function() {
+								$(this).prop("checked", true);
+							});
+						}else if(val==2){//授权不激活 只选授权复选框
+							//先清空
+							$("input[name='"+prop+"']").attr("checked",false);
+							//再选择授权复选框
+							$("input[name='"+prop+"']").get(0).checked="checked";
+						}
+					}
+				
+					
+					
+				}
+			})
+		  
+		});
+});
+		
+
+</script>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.diagn_holiday.mapper.diagn_holiday.DiagnHolidayMapper">
+    
+	<sql id="diagnHolidayColumns">
+		a.id AS "id",
+		a.start_date AS "startDate",
+		a.end_date AS "endDate",
+		a.holiday_name AS "holidayName"
+	</sql>
+	
+	<sql id="diagnHolidayJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="DiagnHoliday" >
+		SELECT 
+			<include refid="diagnHolidayColumns"/>
+		FROM diagn_holiday a
+		<include refid="diagnHolidayJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DiagnHoliday" >
+		SELECT 
+			<include refid="diagnHolidayColumns"/>
+		FROM diagn_holiday a
+		<include refid="diagnHolidayJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DiagnHoliday" >
+		SELECT 
+			<include refid="diagnHolidayColumns"/>
+		FROM diagn_holiday a
+		<include refid="diagnHolidayJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO diagn_holiday(
+			start_date,
+			end_date,
+			holiday_name
+		) VALUES (
+			#{startDate},
+			#{endDate},
+			#{holidayName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE diagn_holiday SET 	
+			start_date = #{startDate},
+			end_date = #{endDate},
+			holiday_name = #{holidayName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM diagn_holiday
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE diagn_holiday SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DiagnHoliday" statementType="STATEMENT">
+		select * FROM diagn_holiday  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

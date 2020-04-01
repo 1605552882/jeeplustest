@@ -1,0 +1,75 @@
+package com.jeeplus.modules.sys.interceptor;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.core.service.BaseService;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.utils.LOGunit;
+import com.jeeplus.modules.sys.utils.UserUtils;
+
+@Aspect
+@Component
+public class FourAdviceTest extends BaseService {
+	@Pointcut("execution(* com.jeeplus.modules..*.*Controller.*(..))")
+	private void testLog() {
+	}
+
+	@Before("testLog()")
+	public void doBefore(JoinPoint joinPoint) {
+//        System.out.println("*************doBefore*****************");
+	}
+
+	@AfterReturning(returning = "result", pointcut = "testLog()")
+	public void doAfterReturning(Object result) throws Exception {
+		User user = UserUtils.getUser();
+		Integer connid = LOGunit.getConn_id();
+		InetAddress address = InetAddress.getLocalHost();
+		LOGunit.web_log(user.getLoginName(), "LogInterceptor", "preHandle", "请求结束",
+				address.getHostAddress(), result.toString(), "", new Date(), connid);
+		System.out.println("result:" + result.toString());
+		System.out.println("*************doAfterReturning*****************");
+	}
+
+	@AfterThrowing(pointcut = "testLog()", throwing = "e")
+	public void doAfterThrowing(Exception e) {
+		System.out.println("*************doAfterThrowing*****************");
+		System.out.println(e.getMessage());
+	}
+
+	@After("testLog()")
+	public void doAfter() {
+//    	System.out.println("*************doAfter*****************");
+	}
+
+	@Around("testLog()")
+	public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
+//        System.out.println("@Around:doAround1"); 
+		Object o = pjp.proceed();
+//        System.out.println("@Around:doAround2"); 
+		return o;
+	}
+
+}

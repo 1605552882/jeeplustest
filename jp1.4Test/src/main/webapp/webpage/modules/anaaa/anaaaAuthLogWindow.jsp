@@ -1,0 +1,87 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>认证日志查询</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	<%@include file="ANAAAAuthLogWindow.js" %>
+	<style type="text/css">
+		#documentarydetailsTable {
+			 table-layout:fixed; 
+		}
+		 th {background-color: #99CCFF;}
+ 		 th {background-color: #99CCFF;}
+		 .form-control{
+           height:25px;
+        }
+        .input-height{
+           height:25px;
+        }
+	</style>
+</head>
+<body>
+	<div class="wrapper wrapper-content" style="background-color: white">
+	<div class="">
+	<div class="">
+		<sys:message content="${message}"/>
+	
+	<!-- 搜索 -->
+			<form id="searchForm" class="row form-inline" style="border:1px solid #AAAAFF;padding-bottom:5px;padding-top:5px;margin:5px 5px 5px 5px">
+
+			<div class="col-xs-12">
+				<label class="label-item single-overflow pull-left" title="IMSI号码：">&nbsp;IMSI号码：</label>
+				<input id="imsiNumber" name="imsiNumber"  class="form-control"/>
+			</div>
+
+			<div class="col-xs-12" style="margin-top:8px">
+				<label class="control_label">&nbsp;开始时间：</label>
+				<div class='input-group date' id='startDate' >
+	                   <input type='text'  name="startDate" class="form-control"  />
+	                   <span class="input-group-addon" style="padding:0 6px 0 6px">
+	                       <span class="glyphicon glyphicon-calendar"></span>
+	                   </span>
+	            </div>
+	            <div class='input-group date' id='startTime' >
+	                   <input type='text'  name="startTime" class="form-control"  />
+	                   <span class="input-group-addon" style="padding:0 6px 0 6px">
+	                       <span class="glyphicon glyphicon-calendar"></span>
+	                   </span>
+	            </div>
+			</div>
+			
+			<div class="col-xs-12" style="margin-top:8px">
+				<label class="control_label">&nbsp;结束时间：</label>
+				<div class='input-group date' id='endDate' >
+	                   <input type='text'  name="endDate" class="form-control"  />
+	                   <span class="input-group-addon" style="padding:0 6px 0 6px">
+	                       <span class="glyphicon glyphicon-calendar"></span>
+	                   </span>
+	            </div>
+	            <div class='input-group date' id='endTime' >
+	                   <input type='text'  name="endTime" class="form-control"  />
+	                   <span class="input-group-addon" style="padding:0 6px 0 6px">
+	                       <span class="glyphicon glyphicon-calendar"></span>
+	                   </span>
+	            </div>
+			</div>
+			
+			<div class="col-xs-12" style="margin-top:8px">
+			  <a  id="search" class="btn btn-primary btn-sm"><i class="fa fa-search"></i> 查询</a>
+			  <a  id="reset" class="btn btn-danger btn-sm" ><i class="fa fa-refresh"></i> 重置</a>
+			  <a  id="" class="btn btn-success btn-sm" onclick="exportAuthLog()"><i class=""></i> 导出excel</a>
+			 </div>
+	</form>
+	
+
+
+	<!-- 表格 -->
+	<table id="authenticationTable" data-height="520"></table>
+
+	</div>
+	</div>
+	</div>
+</body>
+</html>

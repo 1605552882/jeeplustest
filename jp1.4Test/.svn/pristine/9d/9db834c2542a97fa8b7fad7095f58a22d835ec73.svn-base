@@ -1,0 +1,409 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>VoLTE-MMTEL信息管理管理</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	<style>
+        
+        .panel-primary{
+        	border:1px solid blue;
+        	border-radius:5px 5px 5px 5px;
+        }
+           
+       .panel-heading{
+			height:15px;
+			background-color:blue;
+		}
+       
+		.panel-title{
+			margin-top:-7px;
+		}
+		
+		.r1{
+			margin-top:10px;
+			margin-left:1px;
+			margin-right:1px;
+		}
+		
+		.r2{
+			margin-top:-20px;
+			margin-left:1px;
+			margin-right:1px;
+			height:265px;
+		}
+		
+       .gn1{
+           height:220px;		   
+        }
+		
+		.gn2{
+           height:150px;
+        }
+		
+        
+		.form-control{
+           height:25px;
+        }
+		
+		.sel{
+			padding:0%;
+		}
+		
+		.base label{
+			width:90px;
+		}
+		
+    </style>
+</head>
+<body>
+	<div class="container-fluid"  style="background-color: white">
+	 <form class="form-inline" id="hlrForm">
+		<!-- 查询框 -->
+		<div class="row" style="border:1px solid #AAAAFF;margin-left:5px;margin-right:5px;margin-top:5px;padding-top:5px;padding-bottom:5px;">
+			
+			<div class="col-xs-3">
+				<div class="form-group">
+					<label for="userNo" class="control-label">手机号码</label>
+					<input type="text" class="form-control input-sm" id="userNo">
+				</div>
+			</div>
+			<div class="col-xs-12" style="padding-left:25px">
+				<!-- 按钮 -->
+				<div class="row" style="margin-top:8px">
+					<a  id="search" class="btn btn-primary btn-sm" style="width:80px"><i class="fa fa-search"></i>  查询</a>
+					<a  id="update" class="btn btn-danger btn-sm" style="width:80px"><i class="glyphicon glyphicon-edit"></i> 修改</a>
+					<a  id="reset" class="btn btn-warning btn-sm"><i class="glyphicon glyphicon-trash"></i> 删除VoLTE-MMTEL用户</a>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="row r1">
+			<!-- 基本信息 -->
+			<div class="col-xs-6">
+				<div class="gn1 base panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">基本信息</h5>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="userNo" class="control-label">手机号码</label>
+								<input type="text" class="form-control" style="width:150px" id="userNo">
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="smsOriginalCall" class="control-label">呼出停机标识</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px;" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊情况</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="userNo" class="control-label">归属地区</label>
+								<input type="text" class="form-control" style="width:150px" id="userNo">
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="smsOriginalCall" class="control-label">呼入停机标识</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊情况</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="userNo" class="control-label">省号标识</label>
+								<input type="text" class="form-control" style="width:150px" id="userNo">
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="smsOriginalCall" class="control-label">呼出限制</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊情况</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="smsOriginalCall" class="control-label">欠费呼入标识</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊情况</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="smsOriginalCall" class="control-label">呼入限制</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="smsOriginalCall" class="control-label">欠费呼出标识</label>
+								<select name="smsOriginalCall" class="form-control sel" style="width:150px" id="smsOriginalCall">
+								  <option value="" style="display: none"></option>
+								  <option value="0">完全拒绝</option>
+								  <option value="1">保留</option>
+								  <option value="2">允许特殊情况</option>
+								  <option value="3">完全允许</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="userNo" class="control-label">漫游地</label>
+								<input type="text" class="form-control input-sm" style="width:150px" id="userNo">
+							</div>
+						</div>
+					</div>
+					
+				</div>	
+			</div>
+			
+			<!-- 呼转补充业务 -->
+			<div class="col-xs-6">
+				<div class="gn1 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">呼转补充业务</h5>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="withoutCondition" class="control-label" style="text-align:right;width:70px;">无条件前转</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="withoutCondition" type="checkbox" value="1"> 授权
+								</label>
+								<label class="checkbox-inline">
+								  <input name="withoutCondition" type="checkbox" value="2" class="zhActive"> 激活
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="withoutConditionNo">呼转号码</label>
+								<input name="withoutConditionNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:5px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="whenBusy" class="control-label" style="text-align:right;width:70px">遇忙前转</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="whenBusy" type="checkbox" value="1"> 授权
+								</label>
+								<label class="checkbox-inline">
+								  <input name="whenBusy" type="checkbox" value="2" class="zhActive"> 激活
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="whenBusyNo">呼转号码</label>
+								<input name="whenBusyNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:5px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="noAnswer" class="control-label" style="text-align:right;width:70px">不可及前转</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="noAnswer" type="checkbox" value="1"> 授权
+								</label>
+								<label class="checkbox-inline">
+								  <input name="noAnswer" type="checkbox" value="2" class="zhActive"> 激活
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="noAnswerNo">呼转号码</label>
+								<input name="noAnswerNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:5px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="defaultCall" class="control-label" style="text-align:right;width:70px">无应答前转</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="defaultCall" type="checkbox" value="1"> 授权
+								</label>
+								<label class="checkbox-inline">
+								  <input name="defaultCall" type="checkbox" value="2" class="zhActive"> 激活
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="defaultCallNo">呼转号码</label>
+								<input name="defaultCallNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>
+				
+		</div>
+		
+		<!-- 业务信息 -->
+		<div class="row r2">
+			<!-- 基本补充业务 -->
+			<div class="col-xs-6">
+				<div class="gn2 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">基本补充业务</h5>
+					</div>
+					<div class="row" style="padding-top:10px;padding-left:10px">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="defaultCall" class="control-label" style="width:90px">主叫标识显示</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								   <input name="base1xFunction" type="checkbox" value="1"> 登记
+								</label>
+							</div>
+						</div>
+					</div>	
+					<div class="row" style="padding-top:5px;padding-left:10px">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="defaultCall" class="control-label" style="width:90px">呼叫等待</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								   <input name="multiCall" type="checkbox" value="1"> 登记
+								</label>
+							</div>
+						</div>
+					</div>	
+					<div class="row" style="padding-top:5px;padding-left:10px">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="defaultCall" class="control-label" style="width:90px">多方通话</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								   <input name="volte" type="checkbox" id="volte" value="1"> 登记
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:5px;padding-left:10px">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="defaultCall" class="control-label" style="width:90px">通信助理</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								   <input name="volte" type="checkbox" id="volte" value="1"> 登记
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			
+			<!-- 一号通(一号多终端业务) -->
+			<div class="col-xs-6">
+				<div class="gn2 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">一号通(一号多终端业务)</h5>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="withoutCondition" class="control-label" style="text-align:right;width:70px;">主叫一号通</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="withoutCondition" type="checkbox" value="1"> 登记
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="withoutConditionNo">主号号码</label>
+								<input name="withoutConditionNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:5px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="whenBusy" class="control-label" style="text-align:right;width:70px">被叫一号通</label>
+								<label class="checkbox-inline" style="margin-left:10px">
+								  <input name="whenBusy" type="checkbox" value="1"> 登记
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<label for="whenBusyNo">副号号码</label>
+								<input name="whenBusyNo" readOnly type="text" class="form-control input-sm">
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>
+			
+		</div>
+		
+	</form> 
+ </div>
+ 
+	<!-- 提示框 -->
+	<div class="modal fade" id="myModal">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	               <div class="modal-header">
+	                   <h3><font color="blue">提示</font></h3>
+	               </div>
+	               <div class="modal-body">
+	                   <h4><strong id="msg">请先查询再修改!</strong></h4>
+	               </div>
+	               <div class="modal-footer">
+	                   <button class="btn btn-info" data-dismiss="modal">关闭</button>
+	               </div>
+	        </div>
+	    </div>
+	</div>
+
+</body>
+</html>

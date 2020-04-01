@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.serv_project_label.mapper.serv_project_label.ServProjectLabelMapper">
+    
+	<sql id="servProjectLabelColumns">
+		a.id AS "id",
+		a.project_name AS "projectName",
+		a.serv AS "serv",
+		a.csp_err_messages AS "cspErrMessages",
+		a.csp_rig_messages AS "cspRigMessages",
+		a.cm10000_err_messages AS "cm10000ErrMessages",
+		a.cm10000_rig_messages AS "cm10000RigMessages",
+		a.advice AS "advice",
+		a.reponse AS "reponse"
+	</sql>
+	
+	<sql id="servProjectLabelJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ServProjectLabel" >
+		SELECT 
+			<include refid="servProjectLabelColumns"/>
+		FROM serv_project_label a
+		<include refid="servProjectLabelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findList" resultType="ServProjectLabel" >
+		SELECT 
+			<include refid="servProjectLabelColumns"/>
+		FROM serv_project_label a
+		<include refid="servProjectLabelJoins"/>
+		<where>
+			1=1
+			<if test="serv != null and serv != ''">
+				AND a.serv LIKE 
+					<if test="dbName == 'oracle'">'%'||#{serv}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{serv}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{serv},'%')</if>
+			</if>
+			<if test="group!='no'">
+				and a.serv is not NULL
+				group by serv
+			</if>
+		</where>
+		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ServProjectLabel" >
+		SELECT 
+			<include refid="servProjectLabelColumns"/>
+		FROM serv_project_label a
+		<include refid="servProjectLabelJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO serv_project_label(
+			project_name,
+			serv,
+			csp_err_messages,
+			csp_rig_messages,
+			cm10000_err_messages,
+			cm10000_rig_messages,
+			advice,
+			reponse
+		) VALUES (
+			#{projectName},
+			#{serv},
+			#{cspErrMessages},
+			#{cspRigMessages},
+			#{cm10000ErrMessages},
+			#{cm10000RigMessages},
+			#{advice},
+			#{reponse}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE serv_project_label SET 	
+			project_name = #{projectName},
+			serv = #{serv},
+			csp_err_messages = #{cspErrMessages},
+			csp_rig_messages = #{cspRigMessages},
+			cm10000_err_messages = #{cm10000ErrMessages},
+			cm10000_rig_messages = #{cm10000RigMessages},
+			advice = #{advice},
+			reponse = #{reponse}
+		WHERE id = #{id}
+	</update>
+	<update id="updateserv">
+		UPDATE serv_project_label SET 	
+			serv = #{serv}
+		WHERE serv = #{serv1}
+	</update>
+	<delete id="deleteserv">
+		delete from serv_project_label where serv = #{serv}
+	</delete>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM serv_project_label
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE serv_project_label SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ServProjectLabel" statementType="STATEMENT">
+		select * FROM serv_project_label  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

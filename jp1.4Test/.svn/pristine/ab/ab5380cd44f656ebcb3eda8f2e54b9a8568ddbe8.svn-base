@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.hlr_config.mapper.hlr_config.HlrConfigMapper">
+    
+	<sql id="hlrConfigColumns">
+		a.id AS "id",
+		a.code AS "code",
+		a.ip AS "ip",
+		a.port AS "port",
+		a.spctype AS "spctype",
+		a.locname AS "locname",
+		a.hlrname AS "hlrname",
+		a.userid AS "userid",
+		a.cipher AS "cipher",
+		a.area_id AS "area.id",
+		a.num_head AS "numHead",
+		a.imsi_head AS "imsiHead",
+		a.flag AS "flag",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	
+    
+	<select id="get" resultType="HlrConfig" >
+		SELECT 
+			<include refid="hlrConfigColumns"/>
+		FROM hlr_config a
+	
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="HlrConfig" >
+		SELECT 
+			<include refid="hlrConfigColumns"/>
+		FROM hlr_config a
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ip != null and ip != ''">
+				AND a.ip LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ip}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ip}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ip},'%')</if>
+			</if>
+			<if test="spctype != null and spctype != ''">
+				AND a.spctype LIKE 
+					<if test="dbName == 'oracle'">'%'||#{spctype}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{spctype}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{spctype},'%')</if>
+			</if>
+			<if test="locname != null and locname != ''">
+				AND a.locname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{locname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{locname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{locname},'%')</if>
+			</if>
+			<if test="hlrname != null and hlrname != ''">
+				AND a.hlrname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{hlrname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{hlrname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{hlrname},'%')</if>
+			</if>
+			<if test="numHead != null and numHead != ''">
+				AND a.num_head LIKE 
+					<if test="dbName == 'oracle'">'%'||#{numHead}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{numHead}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{numHead},'%')</if>
+			</if>
+			<if test="imsiHead != null and imsiHead != ''">
+				AND a.imsi_head LIKE 
+					<if test="dbName == 'oracle'">'%'||#{imsiHead}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{imsiHead}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{imsiHead},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="HlrConfig" >
+		SELECT 
+			<include refid="hlrConfigColumns"/>
+		FROM hlr_config a
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO hlr_config(
+			id,
+			code,
+			ip,
+			port,
+			spctype,
+			locname,
+			hlrname,
+			userid,
+			cipher,
+			area_id,
+			num_head,
+			imsi_head,
+			flag,
+			remarks,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{code},
+			#{ip},
+			#{port},
+			#{spctype},
+			#{locname},
+			#{hlrname},
+			#{userid},
+			#{cipher},
+			#{area.id},
+			#{numHead},
+			#{imsiHead},
+			#{flag},
+			#{remarks},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE hlr_config SET 	
+			code = #{code},
+			ip = #{ip},
+			port = #{port},
+			spctype = #{spctype},
+			locname = #{locname},
+			hlrname = #{hlrname},
+			userid = #{userid},
+			cipher = #{cipher},
+			area_id = #{area.id},
+			num_head = #{numHead},
+			imsi_head = #{imsiHead},
+			flag = #{flag},
+			remarks = #{remarks},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM hlr_config
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE hlr_config SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="HlrConfig" statementType="STATEMENT">
+		select * FROM hlr_config  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

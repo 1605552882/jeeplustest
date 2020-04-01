@@ -1,0 +1,220 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	//定义查询标志 0未查询 1已查询
+	var flag = 0;
+	//设置全局查询条件
+	var userNo = "";//查询号码
+	var type = "";//查询类型
+	
+	//设置输入框为只读
+	$(".r1 .form-control").attr("readonly",true);
+	$("#outerRoamAuth option").attr("disabled","disabled");
+	
+	$("#searchType").change(function(){
+	     var selVal=$(this).val();
+	     if(selVal==1){
+	    	 $("label[for='userNo']").html("C网IMSI号码"); 
+	     }else if(selVal == 2){
+	    	 $("label[for='userNo']").html("G网IMSI号码");
+	     }else{
+	    	 $("label[for='userNo']").html("手机号码");
+	     }
+	});
+	
+	//验证IMSI号码
+    function checkIMSINoFormat(imsi) {
+	   	var reg = /^(((46003)|(20404)|(45404)|(45403))[0-9]{10})$/;
+	   	return reg.test(imsi);
+    }
+    //验证手机号
+    function checkPhoneNo(phoneNo){
+		var reg = /^(((13|15|17|18|19)[0-9]{9})|((147)[0-9]{8}))$/;
+	 	return reg.test(phoneNo);
+    }
+	
+	 /**
+	   * 双网模关查询
+	   */    
+	  $("#search").click("click", function() {// 绑定查询按扭
+		  userNo = $("#userNo").val();//用户号码
+		  type = $("#searchType").val();//查询类型：0手机号  1C网IMSI号码 2G网IMSI号码
+		  //校验手机号/IMSI号
+		  if(userNo.replace(/\s*/g,"")==""){
+			  if(type==0){
+				  jp.warning("电话号码不能为空！");
+			  }else{
+				  jp.warning("IMSI号不能为空！");
+			  }
+			  return;
+		  }else{
+			 if(type==0 && !checkPhoneNo(userNo)){
+				 jp.warning("电话号码格式不正确！");
+				 return;
+			 }else if((type==1||type==2)&&!checkIMSINoFormat(userNo)){
+				 jp.warning("请输入正确IMSI号码！");
+				 return;
+			 };
+		  }
+		  //每次查询都要先清空表单
+		  $('#ctogForm')[0].reset();
+		  $("#userNo").val(userNo);
+		  $("#searchType").val(type);
+		  jp.loading("正在操作，请稍后...");
+		  $.ajax({
+				url:'${ctx}/ctog/select',
+				dataType:'json',
+				data:{userNoValue:userNo,searchType:type},
+				type:'POST',
+				timeout:10000,
+				success:function(data,status){
+					jp.close();
+					if(data.success){
+						var ctogInfo = data.result[0];
+						setValues(ctogInfo);
+						flag = 1;
+					}else{
+						jp.error(data.message);
+					}
+						
+				}
+			})
+		  
+		});
+	  
+	  //修改漫游权限
+	  $("#update").click(function(){
+		  if(flag==0){
+			  jp.warning("请先查询再修改");
+			  return;
+		  }
+		  //设置输入框为禁用
+		  jp.openDialogView('修改漫游权限', '${ctx}/sys/role/form?id=' + row.id,'200px', '125px');
+		  
+		  
+	  })
+	  
+	  //删除用户数据
+	  $("#delUserData").click(function(){
+		  if(flag==0){
+			  jp.warning("请先作查询操作");
+			  return;
+		  }
+		  var isdn = $("#isdn").val();
+		  var msg = "您正在对用户<font color='red'>"+isdn+"</font>执行<font color='red'>删除用户数据</font>操作，确认要继续么？";
+		  jp.confirm(msg,  function(){
+			  //获取修改的参数
+			  var params = {};
+			  params.operatedType = 3;
+			  params.isdn = isdn;
+			  params.gimsi =$("#gimsi").val();
+			  //发送ajax查询
+			  jp.post("${ctx}/ctog/modify", params,function(data){
+				  if(data.success){
+					  jp.success(data.message);
+					  //清空表单
+					  $('#ctogForm')[0].reset();
+					  $("#userNo").val(userNo);
+					  $("#searchType").val(type);
+				  }else{
+					  jp.error(data.message);
+				  }
+			  })
+		  })
+	  })
+	  
+	  //删除用户位置信息
+	  $("#delUserLoc").click(function(){
+		  if(flag==0){
+			  jp.warning("请先作查询操作");
+			  return;
+		  }
+		  var isdn = $("#isdn").val();
+		  var msg = "您正在对用户<font color='red'>"+isdn+"</font>执行<font color='red'>删除用户位置信息</font>操作，确认要继续么？";
+		  jp.confirm(msg,  function(){
+			  //获取修改的参数
+			  var params = {};
+			  params.operatedType = 4;
+			  params.isdn = isdn;
+			  //发送ajax查询
+			  jp.post("${ctx}/ctog/modify", params,function(data){
+				  if(data.success == true){
+					  jp.success(data.message);
+					  //清空用户位置信息
+					  $("#mscNumber").val("");
+					  $("#vlrNumber").val("");
+				  }else{
+					  jp.error(data.message);
+				  }
+			  })
+		  })
+	  })
+	  
+	  //HLR比对
+	  $("#hlrCompare").click(function(){
+		  if(flag==0){
+			  jp.warning("请先查询该号码的用户信息，再进行比对！");
+			  return;
+		  }
+	  })
+	  
+	  //设置表单的值
+	  function setValues(ctogInfo){
+		  //根据G网IMSI号码设置用户卡类型
+		  ctogInfo.gimsiType=getGimsiType(ctogInfo.gimsi);
+		  //设置短消息投递挂起标志   0 无待发短信    1 有待发短信
+		  if(ctogInfo.smsdpf == "0"){
+			  ctogInfo.smsdpf="无待发短信";
+		  }else if(ctogInfo.smsdpf == "1"){
+			  ctogInfo.smsdpf="有待发短信";
+		  };
+		  //设置网络接入模式
+		  if(ctogInfo.nam == "0"){
+			  ctogInfo.nam="GSM语音功能和GPRS数据功能";
+		  }else if(ctogInfo.nam == "1"){
+			  ctogInfo.nam="GSM语音功能";
+		  }else if(ctogInfo.nam == "2"){
+			  ctogInfo.nam="GPRS数据功能";
+		  };
+		  //设置预付费标识  1 预付费用户     其他值 普通用户
+		  if(ctogInfo.ocsitpl == "1"){
+			  ctogInfo.ocsitpl="预付费用户";
+		  }else{
+			  ctogInfo.ocsitpl="普通用户";
+		  }
+		  //设置PS域计费特性 TODO :
+		  //ctog的js方法 getStoreByType("ctog_charge")  再调用stores.js 
+		  //最后请求BasisCodingController  查表basis_coding_details2获取对应的值
+		  
+		  
+		  //设置输入框的值
+		  for (x in ctogInfo) { 
+			  	if(x == "isdn"){
+			  		var reg = /^86/;
+					if (reg.test(ctogInfo[x])) {
+						ctogInfo[x] = ctogInfo[x].substr(2);
+					}
+			  	}
+		        $("input[name='"+x+"']").val(ctogInfo[x]);
+		        if(x=="outerRoamAuth"){
+		        	//跨网漫游权限
+		        	$("select[name='"+x+"']").val(ctogInfo[x]);
+		        }
+		  }
+	  }
+	  
+	  //获取用户卡类型
+	  function getGimsiType(gimsi){
+	    if(gimsi==null||gimsi=="") return "";
+	    if(gimsi.indexOf("46001") ==0 ) return "旧双模卡";
+	    if(gimsi.indexOf("45404") ==0 ) return "旧天翼国际卡";
+	    if(gimsi.indexOf("20404") ==0 ) return "新天翼国际卡";
+	    //if(gimsi.indexOf("45404") ==0 || gimsi.indexOf("20404") ==0) return "天翼国际卡";
+	    return "";
+	  }
+	 
+});
+		
+
+</script>

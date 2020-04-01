@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.diagn_alarm.mapper.diagn_alarm.DiagnAlarmMapper">
+    
+	<sql id="diagnAlarmColumns">
+		a.id AS "id",
+		a.alarm_title AS "alarmTitle",
+		a.fault_description AS "faultDescription",
+		a.alarm_source AS "alarmSource",
+		a.alarm_time AS "alarmTime",
+		a.alarm_level AS "alarmLevel",
+		a.major_category AS "majorCategory",
+		a.proposal_repair AS "proposalRepair",
+		a.alarm_info AS "alarmInfo",
+		a.influence_customer AS "influenceCustomer",
+		a.influence_range AS "influenceRange",
+		a.influence_time AS "influenceTime",
+		a.alarm_byinfo AS "alarmByinfo",
+		a.confirm_user AS "confirmUser",
+		a.confirm_whether AS "confirmWhether",
+		a.confirm_time AS "confirmTime"
+	</sql>
+	
+	<sql id="diagnAlarmJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="DiagnAlarm" >
+		SELECT 
+			<include refid="diagnAlarmColumns"/>
+		FROM diagn_alarm a
+		<include refid="diagnAlarmJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DiagnAlarm" >
+		SELECT 
+			<include refid="diagnAlarmColumns"/>
+		FROM diagn_alarm a
+		<include refid="diagnAlarmJoins"/>
+		<where>
+			and 1=1
+			${dataScope}
+			<if test="alarmTime != null and alarmTime != ''">
+				AND a.alarm_time = #{alarmTime}
+			</if>
+			<if test="alarmLevel != null and alarmLevel != ''">
+				AND a.alarm_level = #{alarmLevel}
+			</if>
+			<if test="majorCategory != null and majorCategory != ''">
+				AND a.major_category = #{majorCategory}
+			</if>
+			and a.confirm_whether=2
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DiagnAlarm" >
+		SELECT 
+			<include refid="diagnAlarmColumns"/>
+		FROM diagn_alarm a
+		<include refid="diagnAlarmJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO diagn_alarm(
+			alarm_title,
+			fault_description,
+			alarm_source,
+			alarm_time,
+			alarm_level,
+			major_category,
+			proposal_repair,
+			alarm_info,
+			influence_customer,
+			influence_range,
+			influence_time,
+			alarm_byinfo,
+			confirm_user,
+			confirm_whether,
+			confirm_time
+		) VALUES (
+			#{alarmTitle},
+			#{faultDescription},
+			#{alarmSource},
+			#{alarmTime},
+			#{alarmLevel},
+			#{majorCategory},
+			#{proposalRepair},
+			#{alarmInfo},
+			#{influenceCustomer},
+			#{influenceRange},
+			#{influenceTime},
+			#{alarmByinfo},
+			#{confirmUser},
+			#{confirmWhether},
+			#{confirmTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE diagn_alarm SET 	
+			alarm_title = #{alarmTitle},
+			fault_description = #{faultDescription},
+			alarm_source = #{alarmSource},
+			alarm_time = #{alarmTime},
+			alarm_level = #{alarmLevel},
+			major_category = #{majorCategory},
+			proposal_repair = #{proposalRepair},
+			alarm_info = #{alarmInfo},
+			influence_customer = #{influenceCustomer},
+			influence_range = #{influenceRange},
+			influence_time = #{influenceTime},
+			alarm_byinfo = #{alarmByinfo},
+			confirm_user = #{confirmUser},
+			confirm_whether = #{confirmWhether},
+			confirm_time = #{confirmTime}
+		WHERE id = #{id}
+	</update>
+	<update id="updateconfirmWhether">
+		UPDATE diagn_alarm SET 	
+			confirm_user = #{confirmUser},
+			confirm_whether = 1,
+			confirm_time = #{confirmTime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM diagn_alarm
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE diagn_alarm SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DiagnAlarm" statementType="STATEMENT">
+		select * FROM diagn_alarm  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

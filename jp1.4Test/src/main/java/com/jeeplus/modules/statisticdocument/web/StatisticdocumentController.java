@@ -1,0 +1,84 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.statisticdocument.web;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.modules.statisticdocument.entity.Statisticdocument;
+import com.jeeplus.modules.statisticdocument.service.StatisticdocumentService;
+
+/**
+ * 表单统计Controller
+ * @author lxy
+ * @version 2019-09-05
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/statisticdocument/statisticdocument")
+public class StatisticdocumentController extends BaseController {
+
+	@Autowired
+	private StatisticdocumentService statisticdocumentService;
+	
+	@ModelAttribute
+	public Statisticdocument get(@RequestParam(required=false) String id) {
+		Statisticdocument entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = statisticdocumentService.get(id);
+		}
+		if (entity == null){
+			entity = new Statisticdocument();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 表单统计列表数据
+		 * @throws ParseException 
+	 */
+	@ResponseBody
+	@RequestMapping(value = "data")
+	public AjaxJson data(Statisticdocument statisticdocument, HttpServletRequest request, HttpServletResponse response, Model model) {
+		AjaxJson j = new AjaxJson();
+		List<Statisticdocument> document = new ArrayList<>();
+		try {
+			document = statisticdocumentService.getData(statisticdocument);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		j.setSuccess(true);
+		j.setMsg("保存成功!");
+		j.put("document", document);
+		return j;
+	}
+	
+	/**
+	 * 表单统计列表数据
+		 * @throws ParseException 
+	 */
+	@ResponseBody
+	@RequestMapping(value = "sdData")
+	public AjaxJson sdData(Statisticdocument statisticdocument, HttpServletRequest request, HttpServletResponse response, Model model) throws ParseException {
+		AjaxJson j = new AjaxJson();
+		j.setSuccess(true);
+		j.setMsg("保存成功!");
+		j.put("document", statisticdocumentService.getsdData(statisticdocument));
+		return j;
+	}
+}

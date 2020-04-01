@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.jeeplus.modules.system_parameter.mapper.system_parameter.SystemParameterMapper">
+
+	<sql id="systemParameterColumns">
+		a.id AS "id",
+		a.coding AS "coding",
+		a.name AS "name",
+		a.value
+		AS "value",
+		a.notes AS "notes",
+		a.status AS "status"
+	</sql>
+
+	<sql id="systemParameterJoins">
+
+	</sql>
+
+
+	<select id="get" resultType="SystemParameter">
+		SELECT
+		<include refid="systemParameterColumns" />
+		FROM system_parameter a
+		<include refid="systemParameterJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="SystemParameter">
+		SELECT
+		<include refid="systemParameterColumns" />
+		FROM system_parameter a
+		<include refid="systemParameterJoins" />
+		<where>
+
+			${dataScope}
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="value != null and value != ''">
+				AND a.value LIKE
+				<if test="dbName == 'oracle'">'%'||#{value}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{value}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{value},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="SystemParameter">
+		SELECT
+		<include refid="systemParameterColumns" />
+		FROM system_parameter a
+		<include refid="systemParameterJoins" />
+		<where>
+
+			${dataScope}
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO system_parameter(
+
+		coding,
+		name,
+		value,
+		notes,
+		status
+		) VALUES (
+
+		#{coding},
+		#{name},
+		#{value},
+		#{notes},
+		#{status}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE system_parameter SET
+		coding = #{coding},
+		name = #{name},
+		value = #{value},
+		notes = #{notes},
+		status = #{status}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM system_parameter
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除 -->
+	<update id="deleteByLogic">
+		UPDATE system_parameter SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SystemParameter"
+		statementType="STATEMENT">
+		select * FROM system_parameter where ${propertyName} =
+		'${value}'
+	</select>
+
+</mapper>

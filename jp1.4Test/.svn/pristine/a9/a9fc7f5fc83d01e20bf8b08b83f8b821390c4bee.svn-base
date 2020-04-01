@@ -1,0 +1,66 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>ENUM网元信息</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	
+</head>
+<body>
+	<div class="container-fluid"  style="background-color: white">
+		 <form class="form-inline" id="hlrForm">
+			<!-- 查询框 -->
+			<div class="row" style="border:1px solid #AAAAFF;margin-left:5px;margin-right:5px;margin-top:5px;padding-top:5px;padding-bottom:5px;">
+				<div class="col-xs-12" style="margin-top:5px">
+					<div class="form-group">
+						<label for="userNo" class="control-label">手机号码</label>
+						<input type="text" class="form-control input-sm" id="userNo" style="height:25px;font-size:14px;margin-left:10px">
+					</div>
+				</div>
+				<div class="col-xs-12" style="padding-left:25px;margin-top:5px;margin-bottom:5px">
+					<!-- 按钮 -->
+					<div class="row" style="margin-top:8px">
+						<a  id="search" class="btn btn-primary btn-sm" style="width:80px"><i class="fa fa-search"></i>  查询</a>
+						<a  id="update" class="btn btn-danger btn-sm" style="width:80px;margin-left:5px"><i class="glyphicon glyphicon-edit"></i> 添加</a>
+						<a  id="reset" class="btn btn-success btn-sm" style="width:80px;margin-left:5px"><i class="fa fa-refresh"></i> 删除</a>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="row" style="height:440px;margin-top:30px">
+				<div class="col-xs-12">
+					<div class="form-group">
+						<label for="searchResult">ENUM记录</label>
+						<input type="text" readonly style="height:25px;font-size:14px;background-color:white;width:500px;margin-left:10px" class="form-control input-sm" name="searchResult" id="searchResult">
+					</div>
+				</div>
+			</div>
+			
+		</form> 
+	 </div>
+ 
+	<!-- 提示框 -->
+	<div class="modal fade" id="myModal">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	               <div class="modal-header">
+	                   <h3><font color="blue">提示</font></h3>
+	               </div>
+	               <div class="modal-body">
+	                   <h4><strong id="msg">请先查询再修改!</strong></h4>
+	               </div>
+	               <div class="modal-footer">
+	                   <button class="btn btn-info" data-dismiss="modal">关闭</button>
+	               </div>
+	        </div>
+	    </div>
+	</div>
+
+	
+
+</body>
+</html>

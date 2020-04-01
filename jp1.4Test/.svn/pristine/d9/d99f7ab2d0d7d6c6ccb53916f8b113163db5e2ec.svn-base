@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.statisticdocument.mapper.StatisticdocumentMapper">
+    
+	<sql id="statisticdocumentColumns">
+		a.id AS "id",
+		a.daynum AS "daynum",
+		a.detectnum AS "detectnum",
+		a.otimenum AS "otimenum",
+		a.osignnum AS "osignnum",
+		a.repetitionnum AS "repetitionnum",
+		a.rulenum AS "rulenum",
+		a.ofeedbacknum AS "ofeedbacknum",
+		a.checknum AS "checknum",
+		a.errornum AS "errornum",
+		a.conclusionwrongnum AS "conclusionwrongnum",
+		a.controlnum AS "controlnum",
+		a.irrelevantanswernum AS "irrelevantanswernum",
+		a.sendwrongnum AS "sendwrongnum",
+		a.thinkwrongnum AS "thinkwrongnum",
+		a.feedbackfalsenum AS "feedbackfalsenum",
+		a.onegroupnum AS "onegroupnum",
+		a.onegrouperrornum AS "onegrouperrornum",
+		a.twogroupnum AS "twogroupnum",
+		a.twogrouperrornum AS "twogrouperrornum",
+		a.thgroupnum AS "thgroupnum",
+		a.thgrouperrornum AS "thgrouperrornum",
+		a.fogroupnum AS "fogroupnum",
+		a.fogrouperrornum AS "fogrouperrornum",
+		a.fivegroupnum AS "fivegroupnum",
+		a.fivegrouperrornum AS "fivegrouperrornum",
+		a.creat_time AS "creatTime",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="statisticdocumentJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Statisticdocument" >
+		SELECT 
+			<include refid="statisticdocumentColumns"/>
+		FROM statisticdocument a
+		<include refid="statisticdocumentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="find" resultType="Statisticdocument" >
+		SELECT 
+			<include refid="statisticdocumentColumns"/>
+		FROM statisticdocument a
+		<include refid="statisticdocumentJoins"/>
+		<if test="start != null and end != null and start != '' and end != ''">
+				WHERE a.creat_time BETWEEN #{start} AND #{end}
+		</if>
+		<if test="creatTime != null and  creatTime != ''">
+				WHERE a.creat_time = #{creatTime}
+		</if>
+		
+	</select>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Statisticdocument" statementType="STATEMENT">
+		select * FROM statisticdocument  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

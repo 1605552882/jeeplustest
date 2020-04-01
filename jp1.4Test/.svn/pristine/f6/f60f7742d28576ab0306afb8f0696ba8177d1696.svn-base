@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.treatmentreq.mapper.SdTreatmentReqLogMapper">
+    
+	<sql id="sdTreatmentReqLogColumns">
+		a.id AS "id",
+		a.placeid AS "sdTreatmentplaceInf.id",
+		a.patientid AS "sdPatientInf.id",
+		a.patientname AS "patientname",
+		a.reqstate AS "reqstate",
+		a.reqtitle AS "reqtitle",
+		a.reqdetail AS "reqdetail",
+		a.createtime AS "createtime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+				
+		sdTreatmentplaceInf.placename AS "sdTreatmentplaceInf.placename",
+				
+		sdPatientInf.fullname AS "sdPatientInf.fullname"
+	</sql>
+	
+	<sql id="sdTreatmentReqLogJoins">
+		
+		LEFT JOIN sd_treatmentplace_inf sdTreatmentplaceInf ON sdTreatmentplaceInf.id = a.placeid
+		LEFT JOIN sd_patient_inf sdPatientInf ON sdPatientInf.id = a.patientid
+	</sql>
+	
+    
+	<select id="get" resultType="SdTreatmentReqLog" >
+		SELECT 
+			<include refid="sdTreatmentReqLogColumns"/>
+		FROM sd_treatment_req_log a
+		<include refid="sdTreatmentReqLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdTreatmentReqLog" >
+		SELECT 
+			<include refid="sdTreatmentReqLogColumns"/>
+		FROM sd_treatment_req_log a
+		<include refid="sdTreatmentReqLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="sdTreatmentplaceInf != null and sdTreatmentplaceInf.id != null and sdTreatmentplaceInf.id != ''">
+				AND a.placeid = #{sdTreatmentplaceInf.id}
+			</if>
+			<if test="sdPatientInf != null and sdPatientInf.id != null and sdPatientInf.id != ''">
+				AND a.patientid = #{sdPatientInf.id}
+			</if>
+			<if test="reqstate != null and reqstate != ''">
+				AND a.reqstate = #{reqstate}
+			</if>
+			<if test="reqtitle != null and reqtitle != ''">
+				AND a.reqtitle = #{reqtitle}
+			</if>
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdTreatmentReqLog" >
+		SELECT 
+			<include refid="sdTreatmentReqLogColumns"/>
+		FROM sd_treatment_req_log a
+		<include refid="sdTreatmentReqLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_treatment_req_log(
+			placeid,
+			patientid,
+			patientname,
+			reqstate,
+			reqtitle,
+			reqdetail,
+			createtime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{sdTreatmentplaceInf.id},
+			#{sdPatientInf.id},
+			#{patientname},
+			#{reqstate},
+			#{reqtitle},
+			#{reqdetail},
+			#{createtime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_treatment_req_log SET 	
+			placeid = #{sdTreatmentplaceInf.id},
+			patientid = #{sdPatientInf.id},
+			patientname = #{patientname},
+			reqstate = #{reqstate},
+			reqtitle = #{reqtitle},
+			reqdetail = #{reqdetail},
+			createtime = #{createtime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_treatment_req_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_treatment_req_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdTreatmentReqLog" statementType="STATEMENT">
+		select * FROM sd_treatment_req_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

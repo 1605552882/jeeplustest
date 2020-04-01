@@ -1,0 +1,169 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.errordocument.web;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.modules.checkresult.entity.Checkresult;
+import com.jeeplus.modules.checkresult.service.CheckresultService;
+import com.jeeplus.modules.documentdetect.service.DocumentarydetailsService;
+import com.jeeplus.modules.errordocument.entity.Errordocument;
+import com.jeeplus.modules.errordocument.service.ErrordocumentService;
+
+/**
+ * 疑似异常工单Controller
+ * @author lxy
+ * @version 2019-08-28
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/errordocument/errordocument")
+public class ErrordocumentController extends BaseController {
+
+	@Autowired
+	private ErrordocumentService errordocumentService;
+	
+	@ModelAttribute
+	public Errordocument get(@RequestParam(required=false) String id) {
+		Errordocument entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = errordocumentService.get(id);
+		}
+		if (entity == null){
+			entity = new Errordocument();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 本部门派错
+	 * @return
+	 */
+	//@RequiresPermissions("errordocument:errordocument:list")
+	@RequestMapping(value = {"list2", ""})
+	public String list2() {
+		return "modules/errordocument/errordocumentList2";
+	}
+	
+	/**
+	 * 10000号派错部门
+	 */
+	//@RequiresPermissions("errordocument:errordocument:list")
+	@RequestMapping(value = {"list1", ""})
+	public String list1() {
+		return "modules/errordocument/errordocumentList1";
+	}
+	
+	/**
+	 * 疑似异常工单列表页面
+	 */
+	//@RequiresPermissions("errordocument:errordocument:list")
+	@RequestMapping(value = {"list", ""})
+	public String list() {
+		return "modules/errordocument/errordocumentList";
+	}
+	
+		/**
+	 * 疑似异常工单列表数据
+	 */
+	@ResponseBody
+	//@RequiresPermissions("errordocument:errordocument:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(Errordocument errordocument, HttpServletRequest request, HttpServletResponse response, Model model) {
+		errordocument.setRemarks("true");
+		Page<Errordocument> page = errordocumentService.findpage(errordocument,request, response, true); 
+		return getBootstrapData(page);
+	}
+	
+		/**
+	 * 疑似异常工单列表数据
+	 */
+	@ResponseBody
+	//@RequiresPermissions("errordocument:errordocument:list")
+	@RequestMapping(value = "data1")
+	public Map<String, Object> data1(Errordocument errordocument, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<Errordocument> page = errordocumentService.findpage(errordocument,request, response, true); 
+		return getBootstrapData(page);
+	}
+	
+	/**
+	 * 查看，增加，编辑疑似异常工单表单页面
+	 */
+	//@RequiresPermissions(value={"errordocument:errordocument:view","errordocument:errordocument:add","errordocument:errordocument:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(Errordocument errordocument, Model model) {
+		model.addAttribute("errordocument", errordocument);
+		if(StringUtils.isBlank(errordocument.getId())){//如果ID是空为添加
+			model.addAttribute("isAdd", true);
+		}
+		return "modules/errordocument/errordocumentForm";
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("errordocument:errordocument:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public AjaxJson exportFile(Errordocument errordocument, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		AjaxJson j = new AjaxJson();
+		errordocument.setRemarks("true");
+		try {
+            String fileName = "疑似异常工单"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Errordocument> page = errordocumentService.findpage(errordocument, request, response, false);
+    		new ExportExcel("疑似异常工单", Errordocument.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出疑似异常工单记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+	
+    @RequestMapping(value = "export1", method=RequestMethod.POST)
+    public AjaxJson exportFile1(Errordocument errordocument, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+    	String type = "疑似异常工单";
+    	if(errordocument.getCheckresult()!=null && !errordocument.getCheckresult().equals("")) {
+    		type = errordocument.getCheckresult();//万号或者本部门报错
+    	}
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = type+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            
+            Page<Errordocument> page = errordocumentService.findpage(errordocument, request, response, false);
+            new ExportExcel(type, Errordocument.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出"+type+"记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+
+}

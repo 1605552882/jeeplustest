@@ -1,0 +1,317 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>VoLTE-HSS信息管理管理</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	<%@include file="volte-hss.js" %>
+	<style>
+        
+        .panel-primary{
+        	border:1px solid blue;
+        	border-radius:5px 5px 5px 5px;
+        }
+           
+       .panel-heading{
+			height:15px;
+			background-color:blue;
+		}
+       
+		.panel-title{
+			margin-top:-7px;
+		}
+		
+		.r1{
+			margin-top:10px;
+			margin-left:1px;
+			margin-right:1px;
+		}
+		
+		.r2{
+			margin-left:1px;
+			margin-right:1px;
+		}
+		
+       .gn1{
+           height:150px;		   
+        }
+		
+		.gn2{
+           height:300px;
+        }
+		
+		.form-control{
+           height:25px;
+           font-size:14px;
+        }
+		
+		.sel{
+			padding:0%;
+		}
+		
+		.gn1 label{
+			width:90px;
+		}
+		
+		th {
+			/* background-color: #99CCFF; */
+			text-align:center;
+			height:30px;
+		}
+		td {
+			text-align:center;
+		}
+		
+		
+    </style>
+</head>
+<body>
+	<div class="container-fluid"  style="background-color: white">
+	 <form class="form-inline" id="hlrForm">
+		<!-- 查询框 -->
+		<div class="row" style="border:1px solid #AAAAFF;margin-left:5px;margin-right:5px;margin-top:5px;padding-top:5px;padding-bottom:5px;">
+			<div class="col-xs-3">
+				<div class="form-group">
+					<label for="queryType" class="control-label">查询方式</label>
+					<select class="form-control sel" style="width:120px;" id="queryType">
+					  <option value="1">按手机号查询</option>
+					  <option value="2">按IMSI号查询</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="col-xs-3">
+				<div class="form-group">
+					<label for="userNo" class="control-label" style="width:60px;text-align:right;">手机号码</label>
+					<input type="text" class="form-control input-sm" id="userNo">
+				</div>
+			</div>
+			
+			<div class="col-xs-6">
+				<div class="form-group">
+					<label for="city">地市</label>
+					<select id="city" name="city" class="form-control sel" style="width:320px;">
+					  <option value="" style="display: none"></option>
+					  <option value="1">深圳,东莞</option>
+					  <option value="2">广州,佛山</option>
+					  <option value="3">汕头,揭阳,梅州,潮州,惠州,韶关,河源,汕尾</option>
+					  <option value="4">中山,湛江,江门,珠海,茂名,云浮,阳江,肇庆,清远</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-xs-12" style="padding-left:25px">
+				<!-- 按钮 -->
+				<div class="row" style="margin-top:10px">
+					<a  id="search" class="btn btn-primary btn-sm" style="width:80px"><i class="fa fa-search"></i>  查询</a>
+					<a  id="update" class="btn btn-danger btn-sm" style="width:80px"><i class="glyphicon glyphicon-edit"></i> 修改</a>
+					<a  id="del" class="btn btn-warning btn-sm"><i class="glyphicon glyphicon-trash"></i> 删除VoLTE-HSS用户</a>
+				</div>
+			</div>
+			
+		</div>
+		
+		<!-- VoLTE-HSS基本信息和4G-HSS基本信息 -->
+		<div class="row r1">
+			<!-- VoLTE-HSS基本信息 -->
+			<div class="col-xs-6">
+				<div class="gn1 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">VoLTE-HSS</h5>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-12">
+							<div class="form-group" style="padding-left:10px">
+								<label for="IMSI_LTE1" class="control-label">L网IMSI</label>
+								<input type="text" name="IMSI_LTE1" readOnly class="form-control" style="background-color:white;margin-left:20px;width:250px" id="IMSI_LTE1">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-12">
+							<div class="form-group" style="padding-left:10px">
+								<label for="MSISDN1" class="control-label">手机号码</label>
+								<input type="text" name="MSISDN1" readOnly class="form-control" style="background-color:white;margin-left:20px;width:250px" id="MSISDN1">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-12">
+							<div class="form-group" style="padding-left:10px">
+								<label for="" class="control-label">漫游权限</label>
+								<div class="radio">
+								  <label style="margin-left:25px">
+									<input name="Ramble" type="radio" value="0">
+									省内
+								  </label>
+								</div>	
+								<div class="radio">
+								  <label>
+									<input name="Ramble" type="radio" value="1">
+									国内
+								  </label>
+								</div>
+								<div class="radio">
+								  <label>
+									<input name="Ramble" type="radio" value="2">
+									国际
+								  </label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>
+			<!-- 4G-HSS基本信息 -->
+			<div class="col-xs-6">
+				<div class="gn1 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">4G-HSS</h5>
+					</div>
+					<!-- 基本信息 -->
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-12">
+							<div class="form-group" style="padding-left:10px">
+								<label for="IMSI_LTE2" class="control-label">L网IMSI</label>
+								<input type="text" name="IMSI_LTE2" readOnly class="form-control" style="background-color:white;margin-left:20px;width:250px" id="IMSI_LTE2">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-12">
+							<div class="form-group" style="padding-left:10px">
+								<label for="MSISDN2" class="control-label">手机号码</label>
+								<input type="text" name="MSISDN2" readOnly class="form-control" style="background-color:white;margin-left:20px;width:250px" id="MSISDN2">
+							</div>
+						</div>
+					</div>
+					<div class="row" style="padding-top:10px">
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="VOLTETAG">VoLTE标识</label>
+								<select id="VOLTETAG" name="VOLTETAG" class="form-control sel" style="margin-left:20px;width:120px;">
+								  <option value="" style="display: none"></option>
+								  <option value="TRUE">VoLTE用户</option>
+								  <option value="FALSE">非VoLTE用户</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group" style="padding-left:10px">
+								<label for="EPSLOCK">停机状态</label>
+								<select id="EPSLOCK" name="EPSLOCK" class="form-control sel" style="width:80px">
+								  <option value="" style="display: none"></option>
+								  <option value="0">正常</option>
+								  <option value="1">停机</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>	
+			</div>
+				
+		
+		</div>
+		
+		<div class="row r2">
+			<div class="col-xs-6">
+				<div class="gn2 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">SIFC业务</h5>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<!-- 表格信息 -->
+							<table id="sifcTable" data-height="250" ></table>
+						</div>
+					</div>
+				</div>	
+			</div>
+			
+			<div class="col-xs-6">
+				<div class="gn2 panel panel-primary">
+					<div class="panel-heading">
+						<h5 class="panel-title">用户APN签约情况</h5>
+					</div>
+					<div class="row" style="margin-top:5px;">
+						<div class="col-xs-12">
+							<a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#apnModal"><i class="glyphicon glyphicon-plus"></i>  增加IMS-APN</a>
+							<a id="delAPN" class="btn btn-warning btn-sm"><i class="glyphicon glyphicon-trash"></i>  删除IMS-APN</a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<!-- 表格信息 -->
+							<table id="apnTable" data-height="250" ></table>
+						</div>
+					</div>
+				</div>	
+			</div>
+				
+		
+		</div>
+		
+	</form> 
+	
+	<!-- 增加APN弹窗 -->
+	<div id="apnModal" class="modal inmodal bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content" style="width:300px;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">增加APN</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="type">操作类型</label>
+							<select id="type" name="type" class="form-control sel pull-right" style="margin-right:20px;width:180px;">
+							  <option value="1">按手机号码操作</option>
+							  <option value="0">按IMSI号操作</option>
+							</select>
+                        </div>
+                        <div class="form-group">
+                            <label for="num">手机号码</label>
+                            <input type="text" class="form-control pull-right" id="num" name="num" style="margin-right:20px;width:180px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="apntplid">APN</label>
+							<select id="apntplid" name="apntplid" class="form-control sel pull-right" style="margin-right:20px;width:180px;">
+							  <option value="" style="display: none"></option>
+							  <option value="116">IMS(116)/紧急呼叫(117)</option>
+							</select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button id="addAPN" class="btn btn-primary">确定</button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    
+    <!-- 提示框 -->
+	<div class="modal fade" id="myModal">
+	    <div class="modal-dialog">
+	        <div class="modal-content">
+	               <div class="modal-header">
+	                   <h3><font color="blue">提示</font></h3>
+	               </div>
+	               <div class="modal-body">
+	                   <h4><strong id="msg">请先查询再修改!</strong></h4>
+	               </div>
+	               <div class="modal-footer">
+	                   <button class="btn btn-info" data-dismiss="modal">关闭</button>
+	               </div>
+	        </div>
+	    </div>
+	</div>
+	
+ </div>
+
+</body>
+</html>

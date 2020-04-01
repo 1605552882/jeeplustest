@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.diagn_serv_log.mapper.diagn_serv_log.DiagnServLogMapper">
+    
+	<sql id="diagnServLogColumns">
+		a.id AS "id",
+		a.user_id AS "user.id",
+		a.check_plat AS "checkPlat",
+		a.mdn AS "mdn",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.serv_name_id AS "servNameId",
+		a.city AS "city",
+				
+		user.name AS "user.name"
+	</sql>
+	
+	<sql id="diagnServLogJoins">
+		
+		LEFT JOIN sys_user user ON user.id = a.user_id
+	</sql>
+	
+    
+	<select id="get" resultType="DiagnServLog" >
+		SELECT 
+			<include refid="diagnServLogColumns"/>
+		FROM diagn_serv_log a
+		<include refid="diagnServLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DiagnServLog" >
+		SELECT 
+			<include refid="diagnServLogColumns"/>
+		FROM diagn_serv_log a
+		<include refid="diagnServLogJoins"/>
+		<where>
+			
+			${dataScope}
+			<if test="checkPlat != null and checkPlat != ''">
+				AND a.check_plat = #{checkPlat}
+			</if>
+			<if test="servNameId != null and servNameId != ''">
+				AND a.serv_name_id = #{servNameId}
+			</if>
+			<if test="city != null and city != ''">
+				AND a.city LIKE 
+					<if test="dbName == 'oracle'">'%'||#{city}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{city}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{city},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DiagnServLog" >
+		SELECT 
+			<include refid="diagnServLogColumns"/>
+		FROM diagn_serv_log a
+		<include refid="diagnServLogJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO diagn_serv_log(
+			user_id,
+			check_plat,
+			mdn,
+			start_time,
+			end_time,
+			serv_name_id,
+			city
+		) VALUES (
+			#{user.id},
+			#{checkPlat},
+			#{mdn},
+			#{startTime},
+			#{endTime},
+			#{servNameId},
+			#{city}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE diagn_serv_log SET 	
+			user_id = #{user.id},
+			check_plat = #{checkPlat},
+			mdn = #{mdn},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			serv_name_id = #{servNameId},
+			city = #{city}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM diagn_serv_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE diagn_serv_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DiagnServLog" statementType="STATEMENT">
+		select * FROM diagn_serv_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

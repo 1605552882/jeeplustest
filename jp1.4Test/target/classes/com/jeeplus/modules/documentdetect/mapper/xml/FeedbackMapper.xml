@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.documentdetect.mapper.FeedbackMapper">
+    
+	<sql id="feedbackColumns">
+		a.id AS "id",
+		a.sbillno AS "documentarydetails.sbillno",
+		a.iserialno AS "iserialno",
+		a.sdeptname AS "sdeptname",
+		a.sstaffname AS "sstaffname",
+		a.sstaffphone AS "sstaffphone",
+		a.dcreatetime AS "dcreatetime",
+		a.ssource AS "ssource",
+		a.sprocdesc AS "sprocdesc",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="feedbackJoins">
+		
+			LEFT JOIN documentarydetails b ON b.id = a.sbillno
+	</sql>
+	
+    
+	<select id="get" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM feedback a
+		<include refid="feedbackJoins"/>
+		WHERE a.id = #{id}  
+	</select>
+	
+	<select id="findList" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM feedback a
+		<include refid="feedbackJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="documentarydetails != null and documentarydetails.sbillno != null and documentarydetails.sbillno != ''">
+				AND a.sbillno = #{documentarydetails.sbillno}
+			</if>
+		</where>
+		order by dcreatetime
+	</select>
+	
+	<select id="findAllList" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM feedback a
+		<include refid="feedbackJoins"/>
+		<where>
+			${dataScope}
+		</where>		
+		order by dcreatetime
+	</select>
+	
+	<select id="findcount" resultType="Integer" >
+		SELECT 
+			count(*)
+		FROM feedback a
+		<where>
+			<if test="begin != null  and begin != '' and end != null and end != ''">
+				AND a.create_date between #{begin} and #{end}
+			</if>
+		</where>		
+		order by dcreatetime
+	</select>
+
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Feedback" statementType="STATEMENT">
+		select * FROM feedback  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

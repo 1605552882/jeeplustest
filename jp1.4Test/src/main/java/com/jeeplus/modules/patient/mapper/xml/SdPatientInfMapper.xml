@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.patient.mapper.SdPatientInfMapper">
+    
+	<sql id="sdPatientInfColumns">
+		a.id AS "id",
+		a.fullname AS "fullname",
+		a.openid AS "openid",
+		a.mobileno AS "mobileno",
+		a.createtime AS "createtime",
+		a.headicon AS "headicon",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="sdPatientInfJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SdPatientInf" >
+		SELECT 
+			<include refid="sdPatientInfColumns"/>
+		FROM sd_patient_inf a
+		<include refid="sdPatientInfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdPatientInf" >
+		SELECT 
+			<include refid="sdPatientInfColumns"/>
+		FROM sd_patient_inf a
+		<include refid="sdPatientInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="fullname != null and fullname != ''">
+				AND a.fullname = #{fullname}
+			</if>
+			<if test="mobileno != null and mobileno != ''">
+				AND a.mobileno = #{mobileno}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdPatientInf" >
+		SELECT 
+			<include refid="sdPatientInfColumns"/>
+		FROM sd_patient_inf a
+		<include refid="sdPatientInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_patient_inf(
+			fullname,
+			openid,
+			mobileno,
+			createtime,
+			headicon,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{fullname},
+			#{openid},
+			#{mobileno},
+			#{createtime},
+			#{headicon},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_patient_inf SET 	
+			fullname = #{fullname},
+			openid = #{openid},
+			mobileno = #{mobileno},
+			createtime = #{createtime},
+			headicon = #{headicon},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_patient_inf
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_patient_inf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdPatientInf" statementType="STATEMENT">
+		select * FROM sd_patient_inf  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

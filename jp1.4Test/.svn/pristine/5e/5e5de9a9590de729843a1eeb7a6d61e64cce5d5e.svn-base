@@ -1,0 +1,337 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>首页</title>
+	<meta name="decorator" content="ani"/>
+	
+	<!-- 引入 echarts.js -->
+	<%@ include file="/webpage/include/echarts.jsp"%>
+	<style>
+
+		#body-container {
+			margin-left: 0px !important;
+			/**padding: 10px;*/
+			margin-top: 0px !important;
+			overflow-x: hidden!important;
+			transition: all 0.2s ease-in-out !important;
+			height: 100% !important;
+		}
+		/*高度百分比显示*/
+		.conter-wrapper,.row,.foo,.home-charts-middle,.top-right-chart,.top-left-chart{
+			height: 100%
+		}
+		.bottom-right-chart{
+			height: 45%
+		}
+		#mychart1{
+			height: 50%
+		}
+		#mychart2,#mychart3{
+			height: 50%
+		}
+		.instead-br{
+			height: 2%
+		}
+	</style>
+	
+</head>
+<body class="">
+<div id="body-container" class="wrapper wrapper-content">
+	<div class="conter-wrapper home-container">
+		<div class="row home-row">
+			<div class="col-md-12 col-lg-6 foo" style="background-color: #0d235e; ">
+				
+						<div id="mychart1"></div>
+						<div class="col-md-6 col-lg-6 foo">
+							<div id="mychart2"></div>
+						</div>
+						<div class="col-md-6 col-lg-6 foo">
+							<div id="mychart3"></div>
+						</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="vendor/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="js/vendor.js"></script>
+<script type="text/javascript">
+	// 基于准备好的dom，初始化echarts实例4
+    var myChart1 = echarts.init(document.getElementById("mychart1"));
+    window.onresize = myChart1.resize;
+    var myChart2 = echarts.init(document.getElementById("mychart2"));
+    window.onresize = myChart2.resize;
+    
+    var myChart3 = echarts.init(document.getElementById("mychart3"));
+    window.onresize = myChart3.resize;
+    
+    
+    $(function () {
+        jp.get("${ctx}/statisticdocument/statisticdocument/data", function (data) {
+           
+        	var documents = data.body.document; 
+        	var xAxis = []; //x轴
+        	var ybar = [];  //y轴柱状图
+        	var yline = []; //y轴折线图
+        	var year = "";
+        	var month = "";
+        	for (var i = 0; i < documents.length; i++) {
+        		var document = documents[i];
+        		var daynum = document.daynum; // 当天工单量
+        		var date = new Date(document.creatTime);
+        		if (i == 0) {
+	        		year = date.getFullYear();
+	        		month = date.getMonth()+1;
+        		}
+        		xAxis.push(date.getDate() + "日"); 
+        		ybar.push(daynum);
+        		var otimeNum = document.otimenum //超时工单量
+        		var osignNum = document.osignnum //签单超时工单量
+        		var ofeedbackNum = document.ofeedbacknum //反馈超时工单量
+        		var rate = (daynum - otimeNum - osignNum - ofeedbackNum) / daynum ;
+        		yline.push((rate * 100).toFixed(2));
+			}
+        	
+        	 
+        	
+        	 option1 = {	
+        			 		/* backgroundColor: '#0d235e', */ 
+        			    	title: {
+        			        text: '投诉工单处理及时率',
+        			        subtext: year + "年" + month + "月",
+        			        x: 'center',
+        			        y: 0,
+        			        textStyle:{
+        			            color:'#B4B4B4',
+        			            fontSize:16,
+        			            fontWeight:'normal',
+        			        },
+        			        
+        			    },
+        			    tooltip: {
+        			        trigger: 'axis',
+        			        backgroundColor:'rgba(255,255,255,0.1)',
+        			        axisPointer: {
+        			            type: 'shadow',
+        			            label: {
+        			                show: true,
+        			                backgroundColor: '#7B7DDC'
+        			            }
+        			        }
+        			    },
+        			   /*  legend: {
+        			        data: ['增值税应纳税额', '一般纳税人户数','增幅',],
+        			        textStyle: {
+        			            color: '#B4B4B4'
+        			        },
+        			        top:'7%',
+        			    }, */
+        			    grid:{
+        			        x:'12%',
+        			        width:'82%',
+        			        y:'12%',
+        			    },
+        			    xAxis: {
+        			        data: xAxis,
+        			        axisLine: {
+        			            lineStyle: {
+        			                color: '#B4B4B4'
+        			            }
+        			        },
+        			        axisTick:{
+        			            show:false,
+        			        },
+        			    },
+        			    yAxis: [
+		       			     {
+		
+		       			        splitLine: {show: false},
+		       			        axisLine: {
+		       			            lineStyle: {
+		       			                color: '#B4B4B4',
+		       			            }
+		       			        },
+		       			        
+		       			        axisLabel:{
+		       			            formatter:'{value} ',
+		       			        }
+		       			    },
+        			        {
+
+        			        splitLine: {show: false},
+        			        axisLine: {
+        			            lineStyle: {
+        			                color: '#B4B4B4',
+        			            }
+        			        },
+        			        axisLabel:{
+        			            formatter:'{value}% ',
+        			        }
+        			    }],
+        			    
+        			    series: [{
+        			        name: '及时率',
+        			        type: 'line',
+        			        smooth: true,
+        			        showAllSymbol: true,
+        			        symbol: 'emptyCircle',
+        			        symbolSize: 8,
+        			        yAxisIndex: 1,
+        			        itemStyle: {
+        			                normal: {
+        			                color:'#F02FC2'},
+        			        },
+        			        data: yline
+        			    }, 
+        			    
+        			    {
+        			        name: '工单量',
+        			        type: 'bar',
+        			        barWidth: 10,
+        			        itemStyle: {
+        			            normal: {
+        			                barBorderRadius: 5,
+        			                color: new echarts.graphic.LinearGradient(
+        			                    0, 0, 0, 1,
+        			                    [
+        			                        {offset: 0, color: '#956FD4'},
+        			                        {offset: 1, color: '#3EACE5'}
+        			                    ]
+        			                )
+        			            }
+        			        },
+        			        data: ybar
+        			    }
+        			   ]
+};
+        	 
+            myChart1.setOption(option1);
+           
+        });
+        
+        jp.get("${ctx}/statisticdocument/statisticdocument/sdData", function (data) {
+        	var documents = data.body.document; 
+	       	var value;
+	       	var year = "";
+         	var month = "";
+         	var day = "";
+        	for (var i = 0; i < documents.length; i++) {
+        		var document = documents[i];
+        		var daynum = document.daynum; // 当天工单量
+        		var detectnum = document.detectnum //检测工单量
+        		value = (detectnum / daynum).toFixed(1);
+        		if (i == 0) {
+        			var date = new Date(document.creatTime);
+  	        		year = date.getFullYear();
+  	        		month = date.getMonth()+1;
+  	        		day = date.getDate();
+        		}
+			};
+        	
+           	 var data = [value];
+           	 //水滴图
+           	 var option2 = {
+           			/* backgroundColor: '#0d235e',  */
+         			    title: {
+         			    text: '系统检查疑似问题工单占总工单比例',
+         			    subtext: year+"年"+month+"月"+day+"日",
+         			    left: 'left',
+        			        top: 10,
+        			        textStyle: {
+        			            color: '#B4B4B4'
+        			        }
+         			    },
+           	     series: [{
+           	         type: 'liquidFill',
+           	         radius: '60%',
+           	         center: ['50%', '50%'],
+           	         data: data,
+           	         backgroundStyle: {
+           	             borderWidth: 5,
+           	             borderColor: '#1daaeb',
+           	             color: '#fff'
+           	         },
+           	         label: {
+           	             normal: {
+           	                 formatter: (value * 100).toFixed(2) + '%',
+           	                 textStyle: {
+           	                     fontSize: 10
+           	                 }
+           	             }
+           	         }
+           	     }]
+           	 };
+           	 myChart3.setOption(option2);
+        });
+        
+	     jp.get("${ctx}/faultcategorystatistic/faultcategorystatistic/btData", function (data) {
+	    	 var documents = data.body.document; 
+        	 var sdata = [];
+        	 var time ="";
+        	 var count;
+        	for (var i = 0; i < documents.length; i++) {
+        		var document = documents[i];
+        		var faultcategory = document.faultcategory; // 故障种类
+        		var times = document.times //统计次数
+        		if (i < 5) {
+        			var map = {name : faultcategory , value : times};
+            		sdata.push(map);
+        		} else {
+        			count += times;
+        		}
+        		if (i == 0) {
+        			time = document.createDate.substring(0,11);
+        		}
+			}
+        	sdata.push({name : '其它' , value : count});
+	        //饼图
+	       	 option3 = {
+	       			/* backgroundColor: '#0d235e',  */
+	       		    title : {
+	       		        text: '投诉工单业务分布情况',
+	       		        subtext: time,
+	       		    	 left: 'left',
+	       		    	textStyle: {
+    			            color: '#B4B4B4'
+    			        }
+	       		    },
+	       		    tooltip : {
+	       		        trigger: 'item',
+	       		        formatter: "{a} <br/>{b} : {c} ({d}%)"
+	       		    },
+	       		    series : [
+	       		        {
+	       		            name: '故障种类',
+	       		            type: 'pie',
+	       		            radius : '60%',
+	       		            center: ['40%', '50%'],
+	       		            data: sdata,
+	       		            itemStyle: {
+	       		                emphasis: {
+	       		                    shadowBlur: 10,
+	       		                    shadowOffsetX: 0,
+	       		                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+	       		                },
+	       		                normal:{
+                                    color:function(params) {
+                                        //自定义颜色
+                                        var colorList = [          
+                                               '#DC143C', '#00FFFF', '#00FF00', '#FFFF00', '#FF8C00', '#FF0000', '#FE8463',
+                                            ];
+                                            return colorList[params.dataIndex]
+                                         }
+                                    }
+	       		            }
+	       		        }
+	       		    ]
+
+	       			};  
+	       	 	myChart2.setOption(option3); 
+	        }); 
+	       
+        
+    })
+	
+</script>
+</body>
+</html>

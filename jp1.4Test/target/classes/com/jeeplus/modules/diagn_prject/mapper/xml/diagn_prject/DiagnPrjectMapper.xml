@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.jeeplus.modules.diagn_prject.mapper.diagn_prject.DiagnPrjectMapper">
+
+	<sql id="diagnPrjectColumns">
+		a.id AS "id",
+		a.project_id AS "projectId",
+		a.label AS
+		"label",
+		a.plat_name AS "platName",
+		a.c_lass AS "cLass"
+	</sql>
+
+	<sql id="diagnPrjectJoins">
+
+	</sql>
+
+
+	<select id="get" resultType="DiagnPrject">
+		SELECT
+		<include refid="diagnPrjectColumns" />
+		FROM diagn_prject a
+		<include refid="diagnPrjectJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DiagnPrject">
+		select DISTINCT p.project_id,
+		label AS "label",
+		p.plat_name AS
+		"platName",
+		c_lass AS "cLass"
+		FROM
+		diagn_serv_project sp,
+		diagn_prject p
+		WHERE
+		sp.serv_name_id = ${servId}
+		<!-- <where> ${dataScope} </where> -->
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DiagnPrject">
+		SELECT
+		<include refid="diagnPrjectColumns" />
+		FROM diagn_prject a
+		<include refid="diagnPrjectJoins" />
+		<where>
+
+			${dataScope}
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	<insert id="insertproject">
+		INSERT INTO diagn_serv_project(
+		project_id,
+		serv_name_id
+		) VALUES (
+		#{projectId},
+		#{servNameId}
+		)
+
+	</insert>
+	<insert id="insert">
+		INSERT INTO diagn_prject(
+		project_id,
+		label,
+		plat_name,
+		c_lass,
+		input_time
+		) VALUES (
+		#{projectId},
+		#{label},
+		#{platName},
+		#{cLass},
+		#{inputTime}
+		)
+	</insert>
+	<update id="updateprojectId">
+		<selectKey keyProperty='id' resultType='int' order='BEFORE'>
+			SELECT
+			(select id FROM diagn_prject order by input_time desc LIMIT 1)id
+			from
+			DUAL
+		</selectKey>
+		UPDATE diagn_prject SET
+		project_id = id
+	</update>
+	<update id="update">
+		UPDATE diagn_prject SET
+		project_id = #{projectId},
+		label = #{label},
+		plat_name = #{platName},
+		c_lass = #{cLass}
+		WHERE id =
+		#{id}
+	</update>
+
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM diagn_prject
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除 -->
+	<update id="deleteByLogic">
+		UPDATE diagn_prject SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DiagnPrject"
+		statementType="STATEMENT">
+		select * FROM diagn_prject where ${propertyName} =
+		'${value}'
+	</select>
+
+</mapper>

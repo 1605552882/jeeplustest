@@ -1,0 +1,255 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	//验证IMSI号码
+    function checkIMSINoFormat(imsi) {
+	   	var reg = /^(((46003)|(20404)|(45404)|(45403))[0-9]{10})$/;
+	   	return reg.test(imsi);
+    }
+    //验证手机号
+    function checkPhoneNo(phoneNo){
+		var reg = /^(((13|15|17|18|19)[0-9]{9})|((147)[0-9]{8}))$/;
+	 	return reg.test(phoneNo);
+    }
+	
+	$("#search").click("click", function() {// 绑定查询按扭
+		  var phoneNum = $("#userNo").val();//电话号码
+		  var type = $("#queryType").val();//查询类型：1手机号  2IMSI号
+		  var city = $("#city").val();//城市
+		  //校验手机号/IMSI号
+		  if(phoneNum.replace(/\s*/g,"")==""){
+			  if(type==1){
+				  jp.warning("电话号码不能为空！");
+			  }else{
+				  jp.warning("IMSI号不能为空！");
+			  }
+			  return;
+		  }else{
+			 if(type==1 && !checkPhoneNo(phoneNum)){
+				 jp.warning("电话号码格式不正确！");
+				 return;
+			 }else if(type==2 && !checkIMSINoFormat(phoneNum)){ 
+				 jp.warning("请输入正确IMSI号码！");
+				 return;
+			 };
+		  }
+		  if(city.replace(/\s*/g,"")==""){
+			  jp.warning("请选择地市！");
+			  return;
+		  }
+		  //封装查询参数
+		  var params = {};
+          params.start = 0;
+          params.limit = 10;
+          params.city = city;
+          params.type = type;
+          params.usernumber = phoneNum;
+//		  jp.loading("正在操作，请稍后...");
+          //volteHss界面左侧查询
+          $.ajax({
+				url:'${ctx}/volte/volteHss/queryVolteHss',
+				dataType:'json',
+				data:params,
+				type:'POST',
+				timeout:10000,
+				success:function(data,status){
+//					jp.close();
+					if(data.success){
+						var volteInfo = data.volteInfo;
+						$("#IMSI_LTE1").val(volteInfo.IMSI_LTE);
+						$("#MSISDN1").val(volteInfo.MSISDN);
+						$("input[name='Ramble'][value='"+volteInfo.Ramble+"']").prop("checked", "checked");
+					}else{
+						jp.error(data.errMsg);
+					};
+					
+				}
+			})
+			//4GHss查询 (volteHss界面右侧)
+			$.ajax({
+				url:'${ctx}/volte/volteHss/query4GHss',
+				dataType:'json',
+				data:params,
+				type:'POST',
+				timeout:10000,
+				success:function(data,status){
+					if(data.success){
+						$("#IMSI_LTE2").val(data.IMSI_LTE);
+						$("#MSISDN2").val(data.MSISDN);
+						$("#VOLTETAG").val(data.VOLTETAG);
+						$("#EPSLOCK").val(data.EPSLOCK);
+						$("#apnTable").bootstrapTable('removeAll');
+					}else{
+						jp.error(data.errMsg);
+					};
+					
+				}
+			})
+			
+          
+		  
+	});
+
+	//SIFC表格
+	$('#sifcTable').bootstrapTable({
+		  	   //请求方法
+               method: 'get',
+               //类型json
+               dataType: "json",
+               //显示刷新按钮
+               showRefresh: false,
+               //显示切换手机试图按钮
+               //showToggle: true,
+               //显示 内容列下拉框
+    	       //showColumns: true,
+    	       //显示到处按钮
+    	       //showExport: true,
+    	       //显示切换分页按钮
+    	       showPaginationSwitch: false,
+    	       //显示详情按钮
+    	       //detailView: true,
+    	       	//显示详细内容函数
+	          // detailFormatter: "detailFormatter",
+    	       //最低显示2行
+    	       minimumCountColumns: 2,
+               //是否显示行间隔色
+               striped: true,
+               //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）     
+               cache: false,    
+               //是否显示分页（*）  
+               pagination: false,   
+                //排序方式 
+               sortOrder: "asc",  
+               //初始化加载第一页，默认第一页
+               pageNumber:1,   
+               //每页的记录行数（*）   
+               pageSize: 10,  
+               //可供选择的每页的行数（*）    
+               pageList: [10, 25, 50, 100],
+               fixedColumns: true, 
+               fixedNumber: 1,
+               //这个接口需要处理bootstrap table传递的固定参数,并返回特定格式的json数据  
+               url: "",
+               //默认值为 'limit',传给服务端的参数为：limit, offset, search, sort, order Else
+               //queryParamsType:'',   
+               ////查询参数,每次调用是会带上这个参数，可自定义                         
+               queryParams : function(params) {
+               	var searchParam = $("#searchForm").serializeJSON();
+               	searchParam.pageNo = params.limit === undefined? "1" :params.offset/params.limit+1;
+               	searchParam.pageSize = params.limit === undefined? -1 : params.limit;
+               	searchParam.orderBy = params.sort === undefined? "" : params.sort+ " "+  params.order;
+                   return searchParam;
+               },
+               //分页方式：client客户端分页，server服务端分页（*）
+               sidePagination: "server",
+               columns: [/*{
+		        checkbox: true
+		       
+		    }
+			,*/{
+		        field: 'sifcIden',
+		        title: 'SIFC',
+		        width : '10%'
+		       
+		    }
+			,{
+		        field: 'sifc',
+		        title: '标识',
+		        width : '10%'
+		       
+		    }
+		     ]
+		
+		});
+	
+	//用户APN签约情况表格
+	$('#apnTable').bootstrapTable({
+		 
+		  	   //请求方法
+               method: 'get',
+               //类型json
+               dataType: "json",
+               //显示刷新按钮
+               showRefresh: false,
+    	       showPaginationSwitch: false,
+    	       //最低显示2行
+    	       minimumCountColumns: 2,
+               //是否显示行间隔色
+               striped: true,
+               //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）     
+               cache: false,    
+               //是否显示分页（*）  
+               pagination: false,   
+                //排序方式 
+               sortOrder: "asc",  
+               //初始化加载第一页，默认第一页
+               pageNumber:1,   
+               //每页的记录行数（*）   
+               pageSize: 10,  
+               //可供选择的每页的行数（*）    
+               pageList: [10, 25, 50, 100],
+               fixedColumns: true, 
+               fixedNumber: 1,
+               //这个接口需要处理bootstrap table传递的固定参数,并返回特定格式的json数据  
+               url: "",
+               ////查询参数,每次调用是会带上这个参数，可自定义                         
+               queryParams : function(params) {
+               	var searchParam = $("#searchForm").serializeJSON();
+               	searchParam.pageNo = params.limit === undefined? "1" :params.offset/params.limit+1;
+               	searchParam.pageSize = params.limit === undefined? -1 : params.limit;
+               	searchParam.orderBy = params.sort === undefined? "" : params.sort+ " "+  params.order;
+                   return searchParam;
+               },
+               //分页方式：client客户端分页，server服务端分页（*）
+               sidePagination: "server",
+               columns: [/*{
+		        checkbox: true
+		       
+		    }
+			,*/{
+		        field: 'APNName',
+		        title: 'APN',
+		        width : '10%'
+		       
+		    }
+			,{
+		        field: 'APNIden',
+		        title: '标识',
+		        width : '10%'
+		       
+		    }
+		     ],
+		     data: [{
+		    	 	APNName: 116,
+		    	 	APNIden: 'IMS'
+	            }, {
+	            	APNName: 117,
+	            	APNIden: '紧急呼叫'
+	            }]
+		
+		});
+	
+	$("#queryType").change(function(){
+	     var selVal=$(this).val();
+	     if(selVal==2){
+	    	 $("label[for='userNo']:first").html("IMSI号码"); 
+	     }else{
+	    	 $("label[for='userNo']:first").html("手机号码");
+	     }
+	});
+	
+	$("#type").change(function(){
+		var selVal=$(this).val();
+		if(selVal==0){
+			$("label[for='num']").html("IMSI号码"); 
+		}else{
+			$("label[for='num']").html("手机号码");
+		}
+	});
+	  
+	 
+});
+		
+
+</script>

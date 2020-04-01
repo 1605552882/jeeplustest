@@ -1,0 +1,39 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	<%@include file="faultcategorystatisticSubTable.js" %>
+	<style type="text/css">
+		#documentarydetailsTable {
+			 table-layout:fixed; 
+		}
+	</style>
+</head>
+<body style="overflow:hidden;">
+	<div class="wrapper wrapper-content" style="padding:1px">
+	<div class="panel panel-primary">
+	<div class="panel-body" style="padding:0px">
+		<sys:message content="${message}"/>
+	
+	<div hidden="hidden">
+		<form action="" id="searchForm">
+			<input id="sfaultcategory" name="sfaultcategory"/>
+			<input id="beginReportTime" name="beginReportTime"/>
+			<input id="endReportTime" name="endReportTime"/>
+			<input id="city" name="city"/>
+		</form>
+	</div>
+
+	<!-- 表格 -->
+	<table id="documentarydetailsTable"   data-toolbar="#toolbar" data-height="520"></table>
+
+	</div>
+	</div>
+	</div>
+</body>
+</html>

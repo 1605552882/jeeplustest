@@ -1,0 +1,268 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	var data = JSON.parse(localStorage.getItem("faultcategorychartdata"));
+
+	$("#timeFlag").val(data.timeFlag);
+	if(data.timeFlag=="1"){
+		$("input[name='beginCreateDate']").val(data.day+" 00:00:00");
+		$("input[name='endCreateDate']").val(data.day+" 23:59:59");
+	}else if(data.timeFlag=="2"){
+		$("input[name='beginCreateDate']").val(data.day);
+		$("input[name='endCreateDate']").val(data.day);
+	}
+	
+	if(data.queryParams.groupFlag == "1"){
+		//申告种类
+		if(data.faultcategory=="其它"){
+			for(var i=0;i<data.faultcategoryList.length-1; i++){
+				var temp = $("<input type='text' name=uselessFaultcategory["+i+"] value="+data.faultcategoryList[i]+" />");
+				$("#searchForm").append(temp);
+			}
+		}else{
+			$("#faultcategory").val(data.faultcategory);
+		}
+		for(var i=0;i<data.cityList.length; i++){
+			var temp = $("<input type='text' name=useCity["+i+"] value="+data.cityList[i]+" />");
+			$("#searchForm").append(temp);
+		}
+		getCityData();
+	}else{
+		//申告来源
+		$("#city").val(data.city);
+		var arrStr = data.faultcategoryList.join(',');
+		$("#faultcategory").val(arrStr);//主要的分类
+		getFaultCategoryData();
+	}
+
+	function getCityData(){
+		console.log($("#searchForm").serializeJSON());
+        jp.post("${ctx}/faultcategorystatistic/faultcategorystatistic/cityData",$("#searchForm").serializeJSON(), function (cityData) {
+        	initMyCityChart(cityData);//data.cityData:[{"city":"GZ","times":"3"},{}]
+        });
+	}
+	
+	function getFaultCategoryData(){
+		console.log($("#searchForm").serializeJSON());
+        jp.post("${ctx}/faultcategorystatistic/faultcategorystatistic/faultCategoryData",$("#searchForm").serializeJSON(), function (faultCategoryData) {
+        	initMyFaultCategoryChart(faultCategoryData);//data.faultCategoryData:[{"faultCategory":"手机移动语音","times":"3"},{}]
+        });
+	}
+
+  	function initMyCityChart(cityData){
+  		var total = 0;
+  		var m2R2Data= [];
+  		for(var i=0; i<cityData.length; i++){
+  			var cityLabel = jp.getDictLabel(${fns:toJson(fns:getDictList('documentCity'))}, cityData[i].city);
+     		m2R2Data.push({value:cityData[i].times, legendname:cityLabel,name:cityLabel+"  "+cityData[i].times});
+  			total += parseInt(cityData[i].times);
+  		}
+
+  		 option = {
+  		    title: [
+  		    {
+  		        text: data.day,
+  		        textStyle: {
+  		            fontSize: 16,
+  		            color: "black"
+  		        },
+  		        left: "2%"
+  		    },    
+  		    {
+  		        text: '合计',
+  		        subtext: total+'个',
+  		        textStyle:{
+  		            fontSize:20,
+  		            color:"black"
+  		        },
+  		        subtextStyle: {
+  		            fontSize: 20,
+  		            color: 'black'
+  		        },
+  		        textAlign:"center",
+  		        x: '34.5%',
+  		        y: '44%',
+  		    }],
+  		    tooltip: {
+  		        trigger: 'item',
+  		        formatter:function (parms){
+  		          var str=  parms.seriesName+"</br>"+
+  		            parms.marker+""+parms.data.legendname+"</br>"+
+  		            "数量："+ parms.data.value+"</br>"+
+  		            "占比："+ parms.percent+"%";
+  		            return  str ;
+  		        }
+  		    },
+  		    legend: {
+  		        type:"scroll",
+  		        orient: 'vertical',
+  		        left:'70%',
+  		        align:'left',
+  		        top:'middle',
+  		        textStyle: {
+  		            color:'#8C8C8C'
+  		        },
+  		        height:250
+  		    },
+  		    series: [
+  		        {
+  		            name:'标题',
+  		            type:'pie',
+  		            center: ['35%', '50%'],
+  		            radius: ['40%', '65%'],
+  		             clockwise: false, //饼图的扇区是否是顺时针排布
+  		            avoidLabelOverlap: false,
+  		            label: {
+  		                normal: {
+  		                    show: true,
+  		                    position: 'outter',
+  		                     formatter:function (parms){
+  		                         return parms.data.legendname
+  		                     }
+  		                }
+  		            },
+  		            labelLine: {
+  		                normal: {
+  		                  length:5,
+  		                  length2:3,
+  		                  smooth:true,
+  		                }
+  		            },
+  		            data:m2R2Data
+  		        }
+  		    ]
+  		};
+
+		//设置高度
+		$("#mychart").css('height',window.screen.height*0.55);
+
+		var myChart = echarts.init(document.getElementById("mychart"));
+		myChart.setOption(option);
+		
+		//点击事件
+		myChart.on('click', function (params) {
+	        if(params.componentType != "xAxis" && params.componentType != "yAxis"){
+	        	data.city = getDictValue(${fns:toJson(fns:getDictList('documentCity'))},params.data.legendname);
+		        localStorage.setItem("faultcategorypiedata",JSON.stringify(data));
+				jp.openDialogView(data.day+" "+data.faultcategory+" "+params.data.legendname,"${ctx}/faultcategorystatistic/faultcategorystatistic/subTable",window.screen.width+"", window.screen.height+"");
+	        }
+		})
+  	}
+  	
+  	function initMyFaultCategoryChart(faultCategoryData){
+  		var total = 0;
+  		var m2R2Data= [];
+  		for(var i=0; i<faultCategoryData.length; i++){
+  			var faultCategoryLabel = jp.getDictLabel(${fns:toJson(fns:getDictList('fiveFaultcategory'))}, faultCategoryData[i].faultcategory);
+  			if(parseInt(faultCategoryData[i].times)>0){
+  				m2R2Data.push({value:faultCategoryData[i].times, legendname:faultCategoryLabel,name:faultCategoryLabel+"  "+faultCategoryData[i].times});
+  			}
+     		total += parseInt(faultCategoryData[i].times);
+  		}
+
+  		 option = {
+  		    title: [
+  		    {
+  		        text: data.day,
+  		        textStyle: {
+  		            fontSize: 16,
+  		            color: "black"
+  		        },
+  		        left: "2%"
+  		    },    
+  		    {
+  		        text: '合计',
+  		        subtext: total+'个',
+  		        textStyle:{
+  		            fontSize:20,
+  		            color:"black"
+  		        },
+  		        subtextStyle: {
+  		            fontSize: 20,
+  		            color: 'black'
+  		        },
+  		        textAlign:"center",
+  		        x: '34.5%',
+  		        y: '44%',
+  		    }],
+  		    tooltip: {
+  		        trigger: 'item',
+  		        formatter:function (parms){
+  		          var str=  parms.seriesName+"</br>"+
+  		            parms.marker+""+parms.data.legendname+"</br>"+
+  		            "数量："+ parms.data.value+"</br>"+
+  		            "占比："+ parms.percent+"%";
+  		            return  str ;
+  		        }
+  		    },
+  		    legend: {
+  		        type:"scroll",
+  		        orient: 'vertical',
+  		        left:'70%',
+  		        align:'left',
+  		        top:'middle',
+  		        textStyle: {
+  		            color:'#8C8C8C'
+  		        },
+  		        height:250
+  		    },
+  		    series: [
+  		        {
+  		            name:'标题',
+  		            type:'pie',
+  		            center: ['35%', '50%'],
+  		            radius: ['40%', '65%'],
+  		             clockwise: false, //饼图的扇区是否是顺时针排布
+  		            avoidLabelOverlap: false,
+  		            label: {
+  		                normal: {
+  		                    show: true,
+  		                    position: 'outter',
+  		                     formatter:function (parms){
+  		                         return parms.data.legendname
+  		                     }
+  		                }
+  		            },
+  		            labelLine: {
+  		                normal: {
+  		                  length:5,
+  		                  length2:3,
+  		                  smooth:true,
+  		                }
+  		            },
+  		            data:m2R2Data
+  		        }
+  		    ]
+  		};
+
+		//设置高度
+		$("#mychart").css('height',window.screen.height*0.55);
+
+		var myChart = echarts.init(document.getElementById("mychart"));
+		myChart.setOption(option);
+		
+		//点击事件
+		myChart.on('click', function (params) {
+	        if(params.componentType != "xAxis" && params.componentType != "yAxis"){
+	        	data.faultcategory = getDictValue(${fns:toJson(fns:getDictList('fiveFaultcategory'))},params.data.legendname);
+		        localStorage.setItem("faultcategorypiedata",JSON.stringify(data));
+				jp.openDialogView(data.day+" "+data.city+" "+params.data.legendname,"${ctx}/faultcategorystatistic/faultcategorystatistic/subTable",window.screen.width+"", window.screen.height+"");
+	        }
+		})
+  	}
+  	
+	//获取字典值
+    function getDictValue(data, label, defaultLabel){
+    	for (var i=0; i<data.length; i++){
+    		var row = data[i];
+    		if (row.label == label){
+    			return row.value;
+    		}
+    	}
+    	return defaultLabel;
+    }
+  	
+})
+
+</script>

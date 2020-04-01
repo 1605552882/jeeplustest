@@ -1,0 +1,28 @@
+package com.jeeplus.modules.sys.listener;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+
+import com.jeeplus.modules.pri_number_head.service.pri_number_head.PriNumberHeadService;
+import com.jeeplus.modules.sys.utils.LOGunit;
+import com.jeeplus.modules.sys.utils.UserUtils;
+
+public class PBSTrackManagerPostProcessor implements BeanPostProcessor {
+	
+	@Override
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		
+		if (bean instanceof PriNumberHeadService) {
+			System.out.println("————————————————————————启动加载—————————————————进入号码头配置—————————");
+			UserUtils.prinumberlist = ((PriNumberHeadService) bean).selectNumberList();
+		}
+		return bean;
+	}
+
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		// TODO Auto-generated method stub
+		return bean;
+	}
+	
+}

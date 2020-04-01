@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.doctor.mapper.SdDoctorOfferLogMapper">
+    
+	<sql id="sdDoctorOfferLogColumns">
+		a.id AS "id",
+		a.reqid AS "reqid",
+		a.doctorid AS "doctorid.id",
+		a.offertime AS "offertime",
+		a.receptiontime AS "receptiontime",
+		a.comment AS "comment",
+		a.receptionfee AS "receptionfee",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+				
+				
+		b.fullname AS "doctorid.fullname"
+	</sql>
+	
+	<sql id="sdDoctorOfferLogJoins">
+		
+			LEFT JOIN sd_doctor_inf b ON b.id = a.doctorid
+	</sql>
+	
+    
+	<select id="get" resultType="SdDoctorOfferLog" >
+		SELECT 
+			<include refid="sdDoctorOfferLogColumns"/>
+		FROM sd_doctor_offer_log a
+		<include refid="sdDoctorOfferLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdDoctorOfferLog" >
+		SELECT 
+			<include refid="sdDoctorOfferLogColumns"/>
+		FROM sd_doctor_offer_log a
+		<include refid="sdDoctorOfferLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="doctorid != null and doctorid.id != null and doctorid.id != ''">
+				AND a.doctorid = #{doctorid.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdDoctorOfferLog" >
+		SELECT 
+			<include refid="sdDoctorOfferLogColumns"/>
+		FROM sd_doctor_offer_log a
+		<include refid="sdDoctorOfferLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_doctor_offer_log(
+			reqid,
+			doctorid,
+			offertime,
+			receptiontime,
+			comment,
+			receptionfee,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{reqid},
+			#{doctorid.id},
+			#{offertime},
+			#{receptiontime},
+			#{comment},
+			#{receptionfee},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_doctor_offer_log SET 	
+			reqid = #{reqid},
+			doctorid = #{doctorid.id},
+			offertime = #{offertime},
+			receptiontime = #{receptiontime},
+			comment = #{comment},
+			receptionfee = #{receptionfee},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_doctor_offer_log
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE doctorid = #{doctorid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_doctor_offer_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE doctorid = #{doctorid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdDoctorOfferLog" statementType="STATEMENT">
+		select * FROM sd_doctor_offer_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.elder.mapper.EdElderInfMapper">
+    
+	<sql id="edElderInfColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.remarks AS "remarks",
+		a.funame AS "funame",
+		a.sex AS "sex",
+		a.nianling AS "nianling",
+		a.chushengriqi AS "chushengriqi",
+		a.ruzhuriqi AS "ruzhuriqi",
+		a.hunyinzhuangkuang AS "hunyinzhuangkuang",
+		a.hunyinzhuangkuangqita AS "hunyinzhuangkuangqita",
+		a.richangjiaoliuyuyan AS "richangjiaoliuyuyan",
+		a.richangjiaoliuyuyanqita AS "richangjiaoliuyuyanqita",
+		a.jiaoyuchengdu AS "jiaoyuchengdu",
+		a.jiaoyuchengduqita AS "jiaoyuchengduqita",
+		a.xianjuzhudi AS "xianjuzhudi",
+		a.tongjurenyuan AS "tongjurenyuan",
+		a.tuixiuqianzhiye AS "tuixiuqianzhiye",
+		a.zongjiao AS "zongjiao",
+		a.zongjiaoqita AS "zongjiaoqita",
+		a.lianxiren1 AS "lianxiren1",
+		a.lianxiren1guanxi AS "lianxiren1guanxi",
+		a.lianxirendianhua AS "lianxirendianhua",
+		a.lianxiren1dizhi AS "lianxiren1dizhi",
+		a.lianxiren2 AS "lianxiren2",
+		a.lianxiren2guanxi AS "lianxiren2guanxi",
+		a.lianxiren2dianhua AS "lianxiren2dianhua",
+		a.lianxiren2dizhi AS "lianxiren2dizhi",
+		a.meiyueshourlaiyuan AS "meiyueshourlaiyuan",
+		a.tuixiujin AS "tuixiujin",
+		a.qinyouzizhu AS "qinyouzizhu",
+		a.wubaohu AS "wubaohu",
+		a.dibaohu AS "dibaohu",
+		a.qitazhengfuzizhu AS "qitazhengfuzizhu",
+		a.qitazizhu AS "qitazizhu",
+		a.zongjine AS "zongjine",
+		a.qitashuju AS "qitashuju",
+		a.yiliaofeiyongzhifufangshi AS "yiliaofeiyongzhifufangshi",
+		a.yiliaofeiyongzhifufangshiqita AS "yiliaofeiyongzhifufangshiqita",
+		a.xqkandianshi AS "xqkandianshi",
+		a.xqtingshouyinji AS "xqtingshouyinji",
+		a.xqyuebaoyuedu AS "xqyuebaoyuedu",
+		a.xqzuoyundong AS "xqzuoyundong",
+		a.shenghuoxiguan AS "shenghuoxiguan",
+		a.bingli AS "bingli",
+		a.guanjieyanweizhi AS "guanjieyanweizhi",
+		a.aizhengweizhi AS "aizhengweizhi",
+		a.jingshenbing AS "jingshenbing",
+		a.qitaneirong AS "qitaneirong",
+		a.cengshishoushu AS "cengshishoushu",
+		a.shiwumingan AS "shiwumingan",
+		a.yaowumingan AS "yaowumingan",
+		a.shiwuminganneirong AS "shiwuminganneirong",
+		a.yaowuminganneirong AS "yaowuminganneirong",
+		a.yuzhangzheguanxi AS "yuzhangzheguanxi",
+		a.zhangzhehuojiashu AS "zhangzhehuojiashu",
+		a.riqi AS "riqi"
+	</sql>
+	
+	<sql id="edElderInfJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="EdElderInf" >
+		SELECT 
+			<include refid="edElderInfColumns"/>
+		FROM ed_elder_inf a
+		<include refid="edElderInfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EdElderInf" >
+		SELECT 
+			<include refid="edElderInfColumns"/>
+		FROM ed_elder_inf a
+		<include refid="edElderInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="funame != null and funame != ''">
+				AND a.funame = #{funame}
+			</if>
+			<if test="nianling != null and nianling != ''">
+				AND a.nianling = #{nianling}
+			</if>
+			<if test="chushengriqi != null and chushengriqi != ''">
+				AND a.chushengriqi = #{chushengriqi}
+			</if>
+			<if test="ruzhuriqi != null and ruzhuriqi != ''">
+				AND a.ruzhuriqi = #{ruzhuriqi}
+			</if>
+			<if test="lianxiren1 != null and lianxiren1 != ''">
+				AND a.lianxiren1 = #{lianxiren1}
+			</if>
+			<if test="lianxiren2 != null and lianxiren2 != ''">
+				AND a.lianxiren2 = #{lianxiren2}
+			</if>
+			<if test="yiliaofeiyongzhifufangshi != null and yiliaofeiyongzhifufangshi != ''">
+				AND a.yiliaofeiyongzhifufangshi = #{yiliaofeiyongzhifufangshi}
+			</if>
+			<if test="bingli != null and bingli != ''">
+				AND a.bingli = #{bingli}
+			</if>
+			<if test="zhangzhehuojiashu != null and zhangzhehuojiashu != ''">
+				AND a.zhangzhehuojiashu = #{zhangzhehuojiashu}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EdElderInf" >
+		SELECT 
+			<include refid="edElderInfColumns"/>
+		FROM ed_elder_inf a
+		<include refid="edElderInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ed_elder_inf(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			remarks,
+			funame,
+			sex,
+			nianling,
+			chushengriqi,
+			ruzhuriqi,
+			hunyinzhuangkuang,
+			hunyinzhuangkuangqita,
+			richangjiaoliuyuyan,
+			richangjiaoliuyuyanqita,
+			jiaoyuchengdu,
+			jiaoyuchengduqita,
+			xianjuzhudi,
+			tongjurenyuan,
+			tuixiuqianzhiye,
+			zongjiao,
+			zongjiaoqita,
+			lianxiren1,
+			lianxiren1guanxi,
+			lianxirendianhua,
+			lianxiren1dizhi,
+			lianxiren2,
+			lianxiren2guanxi,
+			lianxiren2dianhua,
+			lianxiren2dizhi,
+			meiyueshourlaiyuan,
+			tuixiujin,
+			qinyouzizhu,
+			wubaohu,
+			dibaohu,
+			qitazhengfuzizhu,
+			qitazizhu,
+			zongjine,
+			qitashuju,
+			yiliaofeiyongzhifufangshi,
+			yiliaofeiyongzhifufangshiqita,
+			xqkandianshi,
+			xqtingshouyinji,
+			xqyuebaoyuedu,
+			xqzuoyundong,
+			shenghuoxiguan,
+			bingli,
+			guanjieyanweizhi,
+			aizhengweizhi,
+			jingshenbing,
+			qitaneirong,
+			cengshishoushu,
+			shiwumingan,
+			yaowumingan,
+			shiwuminganneirong,
+			yaowuminganneirong,
+			yuzhangzheguanxi,
+			zhangzhehuojiashu,
+			riqi
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{remarks},
+			#{funame},
+			#{sex},
+			#{nianling},
+			#{chushengriqi},
+			#{ruzhuriqi},
+			#{hunyinzhuangkuang},
+			#{hunyinzhuangkuangqita},
+			#{richangjiaoliuyuyan},
+			#{richangjiaoliuyuyanqita},
+			#{jiaoyuchengdu},
+			#{jiaoyuchengduqita},
+			#{xianjuzhudi},
+			#{tongjurenyuan},
+			#{tuixiuqianzhiye},
+			#{zongjiao},
+			#{zongjiaoqita},
+			#{lianxiren1},
+			#{lianxiren1guanxi},
+			#{lianxirendianhua},
+			#{lianxiren1dizhi},
+			#{lianxiren2},
+			#{lianxiren2guanxi},
+			#{lianxiren2dianhua},
+			#{lianxiren2dizhi},
+			#{meiyueshourlaiyuan},
+			#{tuixiujin},
+			#{qinyouzizhu},
+			#{wubaohu},
+			#{dibaohu},
+			#{qitazhengfuzizhu},
+			#{qitazizhu},
+			#{zongjine},
+			#{qitashuju},
+			#{yiliaofeiyongzhifufangshi},
+			#{yiliaofeiyongzhifufangshiqita},
+			#{xqkandianshi},
+			#{xqtingshouyinji},
+			#{xqyuebaoyuedu},
+			#{xqzuoyundong},
+			#{shenghuoxiguan},
+			#{bingli},
+			#{guanjieyanweizhi},
+			#{aizhengweizhi},
+			#{jingshenbing},
+			#{qitaneirong},
+			#{cengshishoushu},
+			#{shiwumingan},
+			#{yaowumingan},
+			#{shiwuminganneirong},
+			#{yaowuminganneirong},
+			#{yuzhangzheguanxi},
+			#{zhangzhehuojiashu},
+			#{riqi}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ed_elder_inf SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			funame = #{funame},
+			sex = #{sex},
+			nianling = #{nianling},
+			chushengriqi = #{chushengriqi},
+			ruzhuriqi = #{ruzhuriqi},
+			hunyinzhuangkuang = #{hunyinzhuangkuang},
+			hunyinzhuangkuangqita = #{hunyinzhuangkuangqita},
+			richangjiaoliuyuyan = #{richangjiaoliuyuyan},
+			richangjiaoliuyuyanqita = #{richangjiaoliuyuyanqita},
+			jiaoyuchengdu = #{jiaoyuchengdu},
+			jiaoyuchengduqita = #{jiaoyuchengduqita},
+			xianjuzhudi = #{xianjuzhudi},
+			tongjurenyuan = #{tongjurenyuan},
+			tuixiuqianzhiye = #{tuixiuqianzhiye},
+			zongjiao = #{zongjiao},
+			zongjiaoqita = #{zongjiaoqita},
+			lianxiren1 = #{lianxiren1},
+			lianxiren1guanxi = #{lianxiren1guanxi},
+			lianxirendianhua = #{lianxirendianhua},
+			lianxiren1dizhi = #{lianxiren1dizhi},
+			lianxiren2 = #{lianxiren2},
+			lianxiren2guanxi = #{lianxiren2guanxi},
+			lianxiren2dianhua = #{lianxiren2dianhua},
+			lianxiren2dizhi = #{lianxiren2dizhi},
+			meiyueshourlaiyuan = #{meiyueshourlaiyuan},
+			tuixiujin = #{tuixiujin},
+			qinyouzizhu = #{qinyouzizhu},
+			wubaohu = #{wubaohu},
+			dibaohu = #{dibaohu},
+			qitazhengfuzizhu = #{qitazhengfuzizhu},
+			qitazizhu = #{qitazizhu},
+			zongjine = #{zongjine},
+			qitashuju = #{qitashuju},
+			yiliaofeiyongzhifufangshi = #{yiliaofeiyongzhifufangshi},
+			yiliaofeiyongzhifufangshiqita = #{yiliaofeiyongzhifufangshiqita},
+			xqkandianshi = #{xqkandianshi},
+			xqtingshouyinji = #{xqtingshouyinji},
+			xqyuebaoyuedu = #{xqyuebaoyuedu},
+			xqzuoyundong = #{xqzuoyundong},
+			shenghuoxiguan = #{shenghuoxiguan},
+			bingli = #{bingli},
+			guanjieyanweizhi = #{guanjieyanweizhi},
+			aizhengweizhi = #{aizhengweizhi},
+			jingshenbing = #{jingshenbing},
+			qitaneirong = #{qitaneirong},
+			cengshishoushu = #{cengshishoushu},
+			shiwumingan = #{shiwumingan},
+			yaowumingan = #{yaowumingan},
+			shiwuminganneirong = #{shiwuminganneirong},
+			yaowuminganneirong = #{yaowuminganneirong},
+			yuzhangzheguanxi = #{yuzhangzheguanxi},
+			zhangzhehuojiashu = #{zhangzhehuojiashu},
+			riqi = #{riqi}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ed_elder_inf
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ed_elder_inf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="EdElderInf" statementType="STATEMENT">
+		select * FROM ed_elder_inf  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

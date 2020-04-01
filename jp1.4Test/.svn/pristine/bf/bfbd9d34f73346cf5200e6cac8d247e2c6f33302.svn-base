@@ -1,0 +1,22 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.statisticdocument.mapper;
+
+import java.util.List;
+
+import com.jeeplus.core.persistence.BaseMapper;
+import com.jeeplus.core.persistence.annotation.MyBatisMapper;
+import com.jeeplus.modules.statisticdocument.entity.Statisticdocument;
+
+/**
+ * 表单统计MAPPER接口
+ * @author lxy
+ * @version 2019-09-05
+ */
+@MyBatisMapper
+public interface StatisticdocumentMapper extends BaseMapper<Statisticdocument> {
+	
+	public List<Statisticdocument> find(Statisticdocument statisticdocument) ;
+	
+}

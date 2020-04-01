@@ -1,0 +1,84 @@
+package com.jeeplus.modules.volte.web;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.core.web.BaseController;
+
+/**
+ * 
+ * @author zh
+ *
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/enum")
+public class EnumController extends BaseController{
+	
+	/**
+	 * ENUM网元信息
+	 */
+	@RequestMapping("/data")
+	public String enumInfoPage() {
+		String page = "modules/volte/enum";
+		return page;
+	}
+	
+	/**
+	 * 查询ENUM网元信息
+	 */
+	@RequestMapping("/query")
+	@ResponseBody
+	public Map<String,Object> query() {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("npcResultCode", "0");
+		resultMap.put("ResultDescr", "success");
+		resultMap.put("npvalidtime", "234");
+		resultMap.put("portoutnetid", "567");
+		resultMap.put("portinnetid", "555");
+		resultMap.put("homenetid", "666");
+		resultMap.put("porttype", "777");
+		
+		resultMap.put("success", true);
+		resultMap.put("resultCode", "0");
+		resultMap.put("CONTENT", "记录信息");
+		return resultMap;
+	}
+	
+	/**
+	 * 增加enum资源信息
+	 */
+	@RequestMapping("/addEnum")
+	@ResponseBody
+	public Map<String,Object> addEnum() {
+		try {
+			Thread.currentThread().sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("success", true);
+		resultMap.put("message", "添加成功！");
+		return resultMap;
+	}
+	
+	/**
+	 * 删除enum资源信息
+	 */
+	@RequestMapping("/delEnum")
+	@ResponseBody
+	public Map<String,Object> delEnum() {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap.put("success", true);
+		resultMap.put("message", "删除成功！");
+//		resultMap.put("success", false);
+//		resultMap.put("message", "删除失败！");
+		return resultMap;
+	}
+	
+	
+	
+}

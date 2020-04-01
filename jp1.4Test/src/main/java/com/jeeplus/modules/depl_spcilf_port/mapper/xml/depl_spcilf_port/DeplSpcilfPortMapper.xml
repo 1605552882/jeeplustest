@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.jeeplus.modules.depl_spcilf_port.mapper.depl_spcilf_port.DeplSpcilfPortMapper">
+
+	<sql id="deplSpcilfPortColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.take_time AS "takeTime",
+		a.svn AS "svn",
+		a.duplicate AS "duplicate",
+		a.pro_solu AS "proSolu",
+		a.backup_cate AS "backupCate",
+		a.usall_problem AS "usallProblem",
+		a.targetid AS "targetid",
+		a.port AS "port",
+		a.way AS "way",
+		a.func AS
+		"func",
+		a.howtodo AS "howtodo"
+	</sql>
+
+	<sql id="deplSpcilfPortJoins">
+
+	</sql>
+
+
+	<select id="get" resultType="DeplSpcilfPort">
+		SELECT
+		<include refid="deplSpcilfPortColumns" />
+		FROM depl_spcilf_port a
+		<include refid="deplSpcilfPortJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DeplSpcilfPort">
+		SELECT
+		<include refid="deplSpcilfPortColumns" />
+		FROM depl_spcilf_port a
+		<include refid="deplSpcilfPortJoins" />
+		<where>
+
+			${dataScope}
+			<if test="targetid != null and targetid != ''">
+				AND a.targetid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{targetid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{targetid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{targetid},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DeplSpcilfPort">
+		SELECT
+		<include refid="deplSpcilfPortColumns" />
+		FROM depl_spcilf_port a
+		<include refid="deplSpcilfPortJoins" />
+		<where>
+
+			${dataScope}
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO depl_spcilf_port(
+
+		name,
+		take_time,
+		svn,
+		duplicate,
+		pro_solu,
+		backup_cate,
+		usall_problem,
+		targetid,
+		port,
+		way,
+		func,
+		howtodo
+		) VALUES (
+
+		#{name},
+		#{takeTime},
+		#{svn},
+		#{duplicate},
+		#{proSolu},
+		#{backupCate},
+		#{usallProblem},
+		#{targetid},
+		#{port},
+		#{way},
+		#{func},
+		#{howtodo}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE depl_spcilf_port SET
+		name = #{name},
+		take_time = #{takeTime},
+		svn = #{svn},
+		duplicate = #{duplicate},
+		pro_solu = #{proSolu},
+		backup_cate = #{backupCate},
+		usall_problem = #{usallProblem},
+		targetid = #{targetid},
+		port = #{port},
+		way = #{way},
+		func = #{func},
+		howtodo = #{howtodo}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM depl_spcilf_port
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除 -->
+	<update id="deleteByLogic">
+		UPDATE depl_spcilf_port SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DeplSpcilfPort"
+		statementType="STATEMENT">
+		select * FROM depl_spcilf_port where ${propertyName} =
+		'${value}'
+	</select>
+
+</mapper>

@@ -1,0 +1,225 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+	<title>热点问题统计</title>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta name="decorator" content="ani"/>
+	<%@ include file="/webpage/include/bootstraptable.jsp"%>
+	<%@include file="/webpage/include/treeview.jsp" %>
+	<%@include file="documentarydetailsListstatistic.js" %>
+	<style type="text/css">
+		#documentarydetailsTable {
+			 table-layout:fixed; 
+		}
+		 table{table-layout:fixed}
+		 th {background-color: #99CCFF;}
+		 td {word-wrap:break-word}
+	</style>
+	<script type="text/javascript">
+	$(document).on('click','#delCenterIpGrp',function(){ 
+		  var el = this.parentNode.parentNode ;
+		  var centerIp = $(this).parent().parent().find('#ipInput').val()
+		  jp.confirm("是否删除",function(){
+			  el.parentNode.removeChild(el);
+		  })
+	});
+	//添加输入框项 
+	//故障内容
+	function addsrepfaultdetail(obj){ 
+		  var html = '<div class="input-group col-sm-12 ">'+ 
+		        '<input class="form-control " type="text" id="srepfaultdetails" onBlur="jointsrepfaultdetail()">'+ 
+		        '<span class="input-group-btn">'+ 
+		              '<button class="btn btn-info" type="button" data-toggle="tooltip" title="删除" id="delCenterIpGrp"><span class="glyphicon glyphicon-minus"></span></button>'+ 
+		        '</span>'+ 
+		      '</div>'
+		  obj.insertAdjacentHTML('beforebegin',html) 
+	}
+	function jointsrepfaultdetail(){
+		var srepfaultdetail ="";
+		$("input[id='srepfaultdetails']").each(function(){
+            //$(this).attr("name")  每个input框name的值
+            srepfaultdetail += $(this).val() + " " //拼接
+        });
+		
+		$("#srepfaultdetail").val(srepfaultdetail);
+	}
+	//结单信息
+	function addsprocesssummarys(obj){ 
+		  var html = '<div class="input-group col-sm-12 ">'+ 
+				        '<input class="form-control" type="text"  id="sprocesssummarys" onBlur="jointsprocesssummarys()"/>'+ 
+				        '<span class="input-group-btn">'+ 
+				              '<button class="btn btn-info" type="button" data-toggle="tooltip" title="删除" id="delCenterIpGrp"><span class="glyphicon glyphicon-minus"></span></button>'+ 
+				        '</span>'+ 
+		  			'</div>';
+		  obj.insertAdjacentHTML('beforebegin',html) 
+	}
+	function jointsprocesssummarys(){
+		var srepfaultdetail ="";
+		$("input[id='sprocesssummarys']").each(function(){
+            //$(this).attr("name")  每个input框name的值
+            srepfaultdetail += $(this).val() + " " //拼接
+        });
+		
+		$("#sprocesssummary").val(srepfaultdetail);
+	}
+	</script>
+</head>
+<body style="overflow:hidden;">
+	<div class="wrapper wrapper-content" style="padding:1px">
+	<div class="panel panel-primary">
+	<div class="panel-body" style="padding:0px">
+		<sys:message content="${message}"/>
+	
+	<!-- 搜索 -->
+	<div class="accordion-group">
+	<div id="collapseTwo" class="accordion-body collapse">
+		<div class="accordion-inner">
+			<form:form id="searchForm" modelAttribute="documentarydetails" class="form form-horizontal well clearfix">
+			<form:hidden path="sprocesssummary"/>
+			<form:hidden path="srepfaultdetail"/>
+			 <div class="col-xs-12 col-sm-6 col-md-2">
+				<label class="label-item single-overflow pull-left" title="故障内容：">故障内容：</label>
+				<div class="well input-group col-sm-12">
+					<div class="input-group col-sm-12 ">
+						<input class="form-control " type="text" id="srepfaultdetails" onBlur="jointsrepfaultdetail()">
+						<span class="input-group-btn">
+							<button class="btn btn-info" type="button" data-toggle="tooltip" title="删除" id="delCenterIpGrp"><span class="glyphicon glyphicon-minus"></span></button>
+						</span>
+					</div>
+					<button class="btn btn-info" type="button" data-toggle="tooltip" title="新增" id="addsrepfaultdetailBtn" onclick="addsrepfaultdetail(this)" ><span class="glyphicon glyphicon-plus"></span></button>
+					<%-- <form:input path="srepfaultdetail" htmlEscape="false"    class="form-control "/> --%>
+				</div>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-2">
+				<label class="label-item single-overflow pull-left" title="结单信息：">结单信息：</label>
+				<div class="well input-group col-sm-12">
+					<div class="input-group col-sm-12 ">	
+						<input class="form-control" type="text"  id="sprocesssummarys" onBlur="jointsprocesssummarys()"/>
+						<span class="input-group-btn">
+							<button class="btn btn-info" type="button" data-toggle="tooltip" title="删除" id="delCenterIpGrp"><span class="glyphicon glyphicon-minus"></span></button>
+						</span>
+					</div>
+					<button class="btn btn-info" type="button" data-toggle="tooltip" title="新增" id="addsprocesssummarysBtn" onclick="addsprocesssummarys(this)" ><span class="glyphicon glyphicon-plus"></span></button> 
+					<%-- <form:input path="sprocesssummary" htmlEscape="false"    class="form-control "/> --%>
+				</div>
+			</div>
+			<div class="col-xs-1 col-sm-1 col-md-1">
+				<label class="label-item single-overflow pull-left" title="结单信息：">查询关系：</label>
+				<form:select  path="relation"   class=" form-control m-b">
+					<form:option value="0" label="或"/>
+					<form:option value="1" label="与"/>
+				</form:select>
+			</div>
+			<div class="col-xs-2 col-sm-2 col-md-2">
+				<label class="label-item single-overflow pull-left" title="热词：">热词：</label>
+				<form:select path="hotword" Class="  form-control m-b" >
+					<form:option value="" label="" />
+					<form:options items="${fns:gethotword()}"
+						itemLabel="label" itemValue="value" htmlEscape="false" />
+				</form:select>
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4">
+			<span style="color:red;font-size: 10px;">(提示 : 热词只单独查询故障内容,未与其他查询项联动! )</span>
+			</div>
+			<div class="col-xs-12 col-sm-6 col-md-2">
+				<label class="label-item single-overflow pull-left" title="单据状态：">单据状态：</label>
+				<form:select  path="sStatus"   class=" form-control m-b">
+					<form:option value="" label=""/>
+					<form:option value="归档" label="归档"/>
+					<form:option value="在途" label="在途"/>
+				</form:select>
+			</div>
+			 <div class="col-xs-12 col-sm-6 col-md-6">
+				 <div class="form-group">
+					<label class="label-item single-overflow pull-left" title="申告时间：">&nbsp;申告时间：</label>
+					<div class="col-xs-12">
+						   <div class="col-xs-12 col-sm-5">
+					        	  <div class='input-group date' id='beginReportTime' style="left: -10px;" >
+					                   <input type='text'  name="beginReportTime" class="form-control"  />
+					                   <span class="input-group-addon">
+					                       <span class="glyphicon glyphicon-calendar"></span>
+					                   </span>
+					             </div>	
+					        </div>
+					        <div class="col-xs-12 col-sm-1">
+					        		~
+					       	</div>
+					        <div class="col-xs-12 col-sm-5">
+					          	<div class='input-group date' id='endReportTime' style="left: -10px;" >
+					                   <input type='text'  name="endReportTime" class="form-control" />
+					                   <span class="input-group-addon">
+					                       <span class="glyphicon glyphicon-calendar"></span>
+					                   </span>
+					           	</div>	
+					        </div>
+					</div>
+				</div>
+			</div>
+		 <div class="col-xs-12 col-sm-6 col-md-4">
+			<div style="margin-top:26px">
+			  <a  id="search" class="btn btn-primary"><i class="fa fa-search"></i> 查询</a>
+			  <a  id="reset" class="btn btn-danger" ><i class="fa fa-refresh"></i> 重置</a>
+			 </div>
+	    </div>	
+	</form:form>
+	</div>
+	</div>
+	</div>
+	
+	<!-- 工具栏 -->
+	<div id="toolbar">
+			<shiro:hasPermission name="documentdetect:documentarydetails:add">
+				<a id="add" class="btn btn-primary" href="${ctx}/documentdetect/documentarydetails/form" title="工单详情页面"><i class="glyphicon glyphicon-plus"></i> 新建</a>
+			</shiro:hasPermission>
+			<shiro:hasPermission name="documentdetect:documentarydetails:edit">
+			    <button id="edit" class="btn btn-success" disabled onclick="edit()">
+	            	<i class="glyphicon glyphicon-edit"></i> 修改
+	        	</button>
+			</shiro:hasPermission>
+			<shiro:hasPermission name="documentdetect:documentarydetails:del">
+				<button id="remove" class="btn btn-danger" disabled onclick="deleteAll()">
+	            	<i class="glyphicon glyphicon-remove"></i> 删除
+	        	</button>
+			</shiro:hasPermission>
+			
+			<shiro:hasPermission name="documentdetect:documentarydetails:export">
+				<button id="exportAll" class="btn btn-danger"  onclick="exportAll()">
+	            	<i class="glyphicon glyphicon-export"></i> 导出
+	        	</button>
+			</shiro:hasPermission>			
+			
+			<shiro:hasPermission name="documentdetect:documentarydetails:import">
+				<button id="btnImport" class="btn btn-info"><i class="fa fa-folder-open-o"></i> 导入</button>
+				<div id="importBox" class="hide">
+						<form id="importForm" action="${ctx}/documentdetect/documentarydetails/import" method="post" enctype="multipart/form-data"
+							 style="padding-left:20px;text-align:center;" ><br/>
+							<input id="uploadFile" name="file" type="file" style="width:330px"/>导入文件不能超过5M，仅允许导入“xls”或“xlsx”格式文件！<br/>　　
+							
+							
+						</form>
+				</div>
+			</shiro:hasPermission>
+	        	<a class="btn btn-primary" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo" >
+					<i class="fa fa-search"></i> 检索
+				</a>
+		    </div>
+		
+	<!-- 表格 -->
+	<table id="documentarydetailsTable" data-toolbar="#toolbar" data-height="520"></table>
+
+    <!-- context menu -->
+    <ul id="context-menu" class="dropdown-menu">
+    	<shiro:hasPermission name="documentdetect:documentarydetails:edit">
+        <li data-item="edit"><a>编辑</a></li>
+        </shiro:hasPermission>
+        <shiro:hasPermission name="documentdetect:documentarydetails:del">
+        <li data-item="delete"><a>删除</a></li>
+        </shiro:hasPermission>
+        <li data-item="action1"><a>取消</a></li>
+    </ul>  
+	</div>
+	</div>
+	</div>
+</body>
+</html>

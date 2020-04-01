@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.patient.mapper.SdPatientRatedLogMapper">
+    
+	<sql id="sdPatientRatedLogColumns">
+		a.id AS "id",
+		a.patientid AS "patientid.id",
+		a.doctorid AS "doctorid.id",
+		a.orderid AS "orderid",
+		a.rateddetail AS "rateddetail",
+		a.ratedtime AS "ratedtime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+				
+		b.fullname AS "patientid.fullname",
+				
+		doctorid.fullname AS "doctorid.fullname"
+	</sql>
+	
+	<sql id="sdPatientRatedLogJoins">
+		
+			LEFT JOIN sd_patient_inf b ON b.id = a.patientid
+		LEFT JOIN sd_doctor_inf doctorid ON doctorid.id = a.doctorid
+	</sql>
+	
+    
+	<select id="get" resultType="SdPatientRatedLog" >
+		SELECT 
+			<include refid="sdPatientRatedLogColumns"/>
+		FROM sd_patient_rated_log a
+		<include refid="sdPatientRatedLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdPatientRatedLog" >
+		SELECT 
+			<include refid="sdPatientRatedLogColumns"/>
+		FROM sd_patient_rated_log a
+		<include refid="sdPatientRatedLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="patientid != null and patientid.id != null and patientid.id != ''">
+				AND a.patientid = #{patientid.id}
+			</if>
+			<if test="doctorid != null and doctorid.id != null and doctorid.id != ''">
+				AND a.doctorid = #{doctorid.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdPatientRatedLog" >
+		SELECT 
+			<include refid="sdPatientRatedLogColumns"/>
+		FROM sd_patient_rated_log a
+		<include refid="sdPatientRatedLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_patient_rated_log(
+			patientid,
+			doctorid,
+			orderid,
+			rateddetail,
+			ratedtime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{patientid.id},
+			#{doctorid.id},
+			#{orderid},
+			#{rateddetail},
+			#{ratedtime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_patient_rated_log SET 	
+			patientid = #{patientid.id},
+			doctorid = #{doctorid.id},
+			orderid = #{orderid},
+			rateddetail = #{rateddetail},
+			ratedtime = #{ratedtime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_patient_rated_log
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE patientid = #{patientid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_patient_rated_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE patientid = #{patientid.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdPatientRatedLog" statementType="STATEMENT">
+		select * FROM sd_patient_rated_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

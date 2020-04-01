@@ -1,0 +1,166 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.documentchoose.web;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.modules.checkresult.entity.Checkresult;
+import com.jeeplus.modules.checkresult.service.CheckresultService;
+import com.jeeplus.modules.documentchoose.entity.Documentchouse;
+import com.jeeplus.modules.documentchoose.service.DocumentchouseService;
+import com.jeeplus.modules.documentdetect.entity.Documentarydetails;
+import com.jeeplus.modules.documentdetect.entity.Feedback;
+import com.jeeplus.modules.documentdetect.service.DocumentarydetailsService;
+import com.jeeplus.modules.errordocument.entity.Errordocument;
+import com.jeeplus.modules.errordocument.service.ErrordocumentService;
+import com.jeeplus.modules.groupdetails.service.GroupdetailsService;
+import com.jeeplus.modules.overtimedocument.entity.Overtimedocument;
+import com.jeeplus.modules.overtimedocument.service.OvertimedocumentService;
+import com.jeeplus.modules.overtimefeedback.entity.Overtimefeedback;
+import com.jeeplus.modules.overtimefeedback.service.OvertimefeedbackService;
+import com.jeeplus.modules.overtimesign.entity.Overtimesigning;
+import com.jeeplus.modules.overtimesign.service.OvertimesigningService;
+import com.jeeplus.modules.repetitivedocument.entity.Repetitivedocument;
+import com.jeeplus.modules.repetitivedocument.service.RepetitivedocumentService;
+
+/**
+ * 工单抽取Controller
+ * @author lxy
+ * @version 2019-08-14
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/documentchoose/documentchouse")
+public class DocumentchouseController extends BaseController {
+
+	@Autowired
+	private DocumentchouseService documentchouseService;
+	
+	@ModelAttribute
+	public Documentchouse get(@RequestParam(required=false) String id) {
+		Documentchouse entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = documentchouseService.get(id);
+		}
+		if (entity == null){
+			entity = new Documentchouse();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 工单抽取列表页面
+	 */
+	//@RequiresPermissions("documentchoose:documentchouse:list")
+	@RequestMapping(value = {"list", ""})
+	public String list() {
+		return "modules/documentchoose/documentchouseList";
+	}
+	
+		/**
+	 * 工单抽取列表数据
+	 */
+	@SuppressWarnings("unused")
+	@ResponseBody
+	//@RequiresPermissions("documentchoose:documentchouse:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(Documentchouse documentchouse, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<Documentchouse> page = handel(documentchouse,request, response);
+		return getBootstrapData(page);
+	}
+	
+	/**
+	 * 抽取工单
+	 * @param documentchouse
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public Page<Documentchouse> handel(Documentchouse documentchouse, HttpServletRequest request, HttpServletResponse response) {
+		
+		Page<Documentchouse> page = documentchouseService.getchouse(documentchouse,request, response);
+		
+		return page;
+	}
+
+	/**
+	 * 查看，增加，编辑工单抽取表单页面
+	 */
+	//@RequiresPermissions(value={"documentchoose:documentchouse:view","documentchoose:documentchouse:add","documentchoose:documentchouse:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(Documentchouse documentchouse, Model model) {
+		model.addAttribute("documentchouse", documentchouse);
+		if(StringUtils.isBlank(documentchouse.getId())){//如果ID是空为添加
+			model.addAttribute("isAdd", true);
+		}
+		return "modules/documentchoose/documentchouseForm";
+	}
+
+	/**
+	 * 保存工单抽取
+	 */
+	
+	@SuppressWarnings("unused")
+	//@RequiresPermissions(value={"documentchoose:documentchouse:add","documentchoose:documentchouse:edit"},logical=Logical.OR)
+	@ResponseBody
+	@RequestMapping(value = "save")
+	public AjaxJson save(Documentarydetails documentarydetails, Model model, RedirectAttributes redirectAttributes) throws Exception{
+		
+		AjaxJson j = documentchouseService.saveCheckResult(documentarydetails);
+		 
+		return j;
+	}
+	
+		
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("documentchoose:documentchouse:export")
+    @RequestMapping(value = "export", method=RequestMethod.POST)
+    public AjaxJson exportFile(Documentchouse documentchouse, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "工单抽取"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Documentchouse> page = handel(documentchouse,request, response);
+    		new ExportExcel("工单抽取", Documentchouse.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出工单抽取记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+}

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.statisticdocument.mapper.StatisticdocumentMapper">
+    
+	<sql id="statisticdocumentColumns">
+		a.id AS "id",
+		a.daynum AS "daynum",
+		a.detectnum AS "detectnum",
+		a.otimenum AS "otimenum",
+		a.osignnum AS "osignnum",
+		a.repetitionnum AS "repetitionnum",
+		a.rulenum AS "rulenum",
+		a.ofeedbacknum AS "ofeedbacknum",
+		a.checknum AS "checknum",
+		a.errornum AS "errornum",
+		a.conclusionwrongnum AS "conclusionwrongnum",
+		a.controlnum AS "controlnum",
+		a.irrelevantanswernum AS "irrelevantanswernum",
+		a.sendwrongnum AS "sendwrongnum",
+		a.thinkwrongnum AS "thinkwrongnum",
+		a.feedbackfalsenum AS "feedbackfalsenum",
+		a.onegroupnum AS "onegroupnum",
+		a.onegrouperrornum AS "onegrouperrornum",
+		a.twogroupnum AS "twogroupnum",
+		a.twogrouperrornum AS "twogrouperrornum",
+		a.thgroupnum AS "thgroupnum",
+		a.thgrouperrornum AS "thgrouperrornum",
+		a.fogroupnum AS "fogroupnum",
+		a.fogrouperrornum AS "fogrouperrornum",
+		a.fivegroupnum AS "fivegroupnum",
+		a.fivegrouperrornum AS "fivegrouperrornum",
+		a.creat_time AS "creatTime",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="statisticdocumentJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Statisticdocument" >
+		SELECT 
+			<include refid="statisticdocumentColumns"/>
+		FROM statisticdocument a
+		<include refid="statisticdocumentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="find" resultType="Statisticdocument" >
+		SELECT 
+			<include refid="statisticdocumentColumns"/>
+		FROM statisticdocument a
+		<include refid="statisticdocumentJoins"/>
+		<if test="start != null and end != null and start != '' and end != ''">
+				WHERE a.creat_time BETWEEN #{start} AND #{end}
+		</if>
+		<if test="creatTime != null and  creatTime != ''">
+				WHERE a.creat_time = #{creatTime}
+		</if>
+		ORDER BY a.creat_time
+	</select>
+	
+	
+		<select id="findMonth" resultType="Statisticdocument" >
+		<include refid="statisticdocumentJoins"/>
+		SELECT 
+			IFNULL(sum(dayNum),0) as daynum ,
+			IFNULL(SUM(detectNum),0) as detectnum ,
+			IFNULL(SUM(errorNum),0) as errornum ,
+			IFNULL(SUM(onegroupNum),0) as onegroupnum ,
+			IFNULL(SUM(onegrouperrornum),0) as onegrouperrornum ,
+			IFNULL(SUM(twogroupnum),0) as twogroupnum ,
+			IFNULL(SUM(twogrouperrornum),0) as twogrouperrornum ,
+			IFNULL(SUM(thgroupnum),0) as thgroupnum ,
+			IFNULL(SUM(thgrouperrornum),0) as thgrouperrornum ,
+			IFNULL(SUM(fogroupnum),0) as fogroupnum ,
+			IFNULL(SUM(fogrouperrornum),0) as fogrouperrornum ,
+			IFNULL(SUM(fivegroupnum),0) as fivegroupnum ,
+			IFNULL(SUM(fivegrouperrornum),0) as fivegrouperrornum,
+			#{creatTime} as  creatTime
+		FROM statisticdocument a
+		<if test="creatTime != null and  creatTime != ''">
+				WHERE a.creat_time BETWEEN  DATE_FORMAT(DATE_add(#{creatTime},INTERVAL 0 month) ,'%Y-%m-01 00:00:00')
+						AND   date_add(date_sub(date_format(#{creatTime},'%Y-%m-%d 23:59:59'),interval extract( day from now()) day),interval 1 month)
+
+		</if>
+	</select>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Statisticdocument" statementType="STATEMENT">
+		select * FROM statisticdocument  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.sys.mapper.LogMapper">
+
+	<select id="findList" resultType="Log">
+		SELECT
+		a.id,
+		a.sys_title,
+		a.create_date,
+		a.remote_addr,
+		a.request_uri,
+		a.sys_method,
+		a.sys_params,
+		a.exception,
+		a.module_name AS moduleName,
+		a.operate_name AS operateName,
+		a.operate_type AS operateType,
+		a.group_id AS groupId,
+		a.user_id AS userId,
+		a.log_detail AS logDetail,
+		a.operate_num AS operateNum,
+		a.connid AS connId,
+		a.success_flag AS successFlag,
+		a.sys_remarks AS sysRemarks,
+		a.opposite_ip AS oppositeIp,
+		a.backstage_port AS backstagePort,
+		a.backstage_user AS backstageUser,
+		u.id AS "createBy.id",
+		u.name AS "createBy.name"
+		FROM ${tablename} a
+		JOIN sys_user u ON u.id =
+		a.user_id
+		WHERE a.create_date BETWEEN #{beginDate} AND
+		#{endDate}
+		<if test="sysTitle != null and sysTitle != ''">
+			AND a.sys_title LIKE
+			<if test="dbName == 'oracle'">'%'||#{sys_title}||'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{sys_title}, '%')</if>
+			<if test="dbName == 'mssql'">'%'+#{sys_title}+'%'</if>
+		</if>
+		<if
+			test="createBy != null and createBy.name != null and createBy.name != ''">
+			AND u.name = #{createBy.name}
+		</if>
+		<if test="requestUri != null and requestUri != ''">
+			AND a.request_uri LIKE
+			<if test="dbName == 'oracle'">'%'||#{requestUri}||'%'</if>
+			<if test="dbName == 'mysql'">CONCAT('%', #{requestUri}, '%')</if>
+			<if test="dbName == 'mssql'">'%'+#{requestUri}+'%'</if>
+		</if>
+		<if test="exception != null and exception != ''">
+			AND a.type = #{TYPE_EXCEPTION}
+		</if>
+		ORDER BY a.create_date DESC
+	</select>
+
+	<select id="get" resultType="Log">
+		SELECT
+		*
+		FROM ${tablename}
+		WHERE id = #{id}
+	</select>
+
+	<update id="delete">
+		DELETE FROM  ${tablename}
+		WHERE id = #{id}
+	</update>
+
+	<update id="empty">
+		DELETE FROM  ${tablename}
+	</update>
+
+	<insert id="insert">
+		INSERT INTO  ${tablename}(
+		id,
+		sys_title,
+		create_date,
+		remote_addr,
+		request_uri,
+		sys_method,
+		sys_params,
+		exception,
+		module_name,
+		operate_name,
+		operate_type,
+		group_id,
+		user_id,
+		log_detail,
+		operate_num,
+		connId,
+		success_flag,
+		sys_remarks,
+		opposite_ip,
+		backstage_port,
+		backstage_user
+		) VALUES (
+		#{id},
+		#{sysTitle},
+		#{createDate},
+		#{remoteAddr},
+		#{requestUri},
+		#{sysMethod},
+		#{sysParams},
+		#{exception},
+		#{moduleName},
+		#{operateName},
+		#{operateType},
+		#{groupId},
+		#{userId},
+		#{logDetail},
+		#{operateNum},
+		#{connId},
+		#{successFlag},
+		#{sysRemarks},
+		#{oppositeIp},
+		#{backstagePort},
+		#{backstageUser}
+		)
+	</insert>
+
+</mapper>

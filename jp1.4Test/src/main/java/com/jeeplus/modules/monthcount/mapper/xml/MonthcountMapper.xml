@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.monthcount.mapper.MonthcountMapper">
+    
+	<sql id="monthcountColumns">
+		a.id AS "id",
+		a.duty_group AS "dutyGroup",
+		a.checknumber AS "checknumber",
+		a.errornumber AS "errornumber",
+		a.duty_peopledetail AS "dutyPeopledetail",
+		a.searchtime AS "searchtime",
+		a.remarks AS "remarks",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="monthcountJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Monthcount" >
+		SELECT 
+			<include refid="monthcountColumns"/>
+		FROM monthcount a
+		<include refid="monthcountJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Monthcount" >
+		SELECT 
+			<include refid="monthcountColumns"/>
+		FROM monthcount a
+		<include refid="monthcountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="dutyGroup != null and dutyGroup != ''">
+				AND a.duty_group = #{dutyGroup}
+			</if>
+			<if test="beginSearchtime != null and endSearchtime != null and beginSearchtime != '' and endSearchtime != ''">
+				AND a.searchtime BETWEEN #{beginSearchtime} AND #{endSearchtime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Monthcount" >
+		SELECT 
+			<include refid="monthcountColumns"/>
+		FROM monthcount a
+		<include refid="monthcountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO monthcount(
+			id,
+			duty_group,
+			checknumber,
+			errornumber,
+			duty_peopledetail,
+			searchtime,
+			remarks,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{dutyGroup},
+			#{checknumber},
+			#{errornumber},
+			#{dutyPeopledetail},
+			#{searchtime},
+			#{remarks},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE monthcount SET 	
+			duty_group = #{dutyGroup},
+			checknumber = #{checknumber},
+			errornumber = #{errornumber},
+			duty_peopledetail = #{dutyPeopledetail},
+			searchtime = #{searchtime},
+			remarks = #{remarks},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM monthcount
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE monthcount SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Monthcount" statementType="STATEMENT">
+		select * FROM monthcount  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

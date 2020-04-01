@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.depl_spcilf_ip.mapper.depl_spcilf_ip.DeplSpcilfIpMapper">
+    
+	<sql id="deplSpcilfIpColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.sys AS "sys",
+		a.ip AS "ip",
+		a.address AS "address",
+		a.useful AS "useful"
+	</sql>
+	
+	<sql id="deplSpcilfIpJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="DeplSpcilfIp" >
+		SELECT 
+			<include refid="deplSpcilfIpColumns"/>
+		FROM depl_spcilf_ip a
+		<include refid="deplSpcilfIpJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DeplSpcilfIp" >
+		SELECT 
+			<include refid="deplSpcilfIpColumns"/>
+		FROM depl_spcilf_ip a
+		<include refid="deplSpcilfIpJoins"/>
+		<where>
+			
+			${dataScope}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="sys != null and sys != ''">
+				AND a.sys LIKE 
+					<if test="dbName == 'oracle'">'%'||#{sys}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{sys}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{sys},'%')</if>
+			</if>
+			<if test="ip != null and ip != ''">
+				AND a.ip LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ip}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ip}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ip},'%')</if>
+			</if>
+			<if test="address != null and address != ''">
+				AND a.address LIKE 
+					<if test="dbName == 'oracle'">'%'||#{address}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{address}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{address},'%')</if>
+			</if>
+			<if test="useful != null and useful != ''">
+				AND a.useful LIKE 
+					<if test="dbName == 'oracle'">'%'||#{useful}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{useful}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{useful},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DeplSpcilfIp" >
+		SELECT 
+			<include refid="deplSpcilfIpColumns"/>
+		FROM depl_spcilf_ip a
+		<include refid="deplSpcilfIpJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO depl_spcilf_ip(
+		
+			name,
+			sys,
+			ip,
+			address,
+			useful
+		) VALUES (
+			
+			#{name},
+			#{sys},
+			#{ip},
+			#{address},
+			#{useful}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE depl_spcilf_ip SET 	
+			name = #{name},
+			sys = #{sys},
+			ip = #{ip},
+			address = #{address},
+			useful = #{useful}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM depl_spcilf_ip
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE depl_spcilf_ip SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DeplSpcilfIp" statementType="STATEMENT">
+		select * FROM depl_spcilf_ip  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

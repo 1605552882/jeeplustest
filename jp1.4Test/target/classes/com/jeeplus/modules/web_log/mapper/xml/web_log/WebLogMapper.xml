@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.web_log.mapper.web_log.WebLogMapper">
+    
+	<sql id="webLogColumns">
+		a.id AS "id",
+		a.user_id AS "user.id",
+		a.class_name AS "className",
+		a.method_name AS "methodName",
+		a.conn_id AS "connId",
+		a.request_msg AS "requestMsg",
+		a.ip_addr AS "ipAddr",
+		a.type AS "type",
+		a.reponse_msg AS "reponseMsg",
+		a.mdn AS "mdn",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.take_time AS "takeTime"
+	</sql>
+	
+	<sql id="webLogJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="WebLog" >
+		SELECT 
+			<include refid="webLogColumns"/>
+		FROM web_log a
+		<include refid="webLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WebLog" >
+		SELECT 
+			<include refid="webLogColumns"/>
+		FROM web_log a
+		<include refid="webLogJoins"/>
+		<where>
+			
+			${dataScope}
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{user.id},'%')</if>
+			</if>
+			<if test="className != null and className != ''">
+				AND a.class_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{className}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{className}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{className},'%')</if>
+			</if>
+			<if test="methodName != null and methodName != ''">
+				AND a.method_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{methodName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{methodName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{methodName},'%')</if>
+			</if>
+			<if test="connId != null and connId != ''">
+				AND a.conn_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{connId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{connId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{connId},'%')</if>
+			</if>
+			<if test="requestMsg != null and requestMsg != ''">
+				AND a.request_msg LIKE 
+					<if test="dbName == 'oracle'">'%'||#{requestMsg}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{requestMsg}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{requestMsg},'%')</if>
+			</if>
+			<if test="ipAddr != null and ipAddr != ''">
+				AND a.ip_addr LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ipAddr}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ipAddr}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ipAddr},'%')</if>
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{type}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{type}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{type},'%')</if>
+			</if>
+			<if test="reponseMsg != null and reponseMsg != ''">
+				AND a.reponse_msg LIKE 
+					<if test="dbName == 'oracle'">'%'||#{reponseMsg}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{reponseMsg}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{reponseMsg},'%')</if>
+			</if>
+			<if test="mdn != null and mdn != ''">
+				AND a.mdn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mdn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mdn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mdn},'%')</if>
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND a.start_time LIKE 
+					<if test="dbName == 'oracle'">'%'||#{startTime}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{startTime}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{startTime},'%')</if>
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND a.end_time LIKE 
+					<if test="dbName == 'oracle'">'%'||#{endTime}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{endTime}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{endTime},'%')</if>
+			</if>
+			<if test="takeTime != null and takeTime != ''">
+				AND a.take_time LIKE 
+					<if test="dbName == 'oracle'">'%'||#{takeTime}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{takeTime}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{takeTime},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WebLog" >
+		SELECT 
+			<include refid="webLogColumns"/>
+		FROM web_log a
+		<include refid="webLogJoins"/>
+		<where>
+			
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO web_log(
+			user_id,
+			class_name,
+			method_name,
+			conn_id,
+			request_msg,
+			ip_addr,
+			type,
+			reponse_msg,
+			mdn,
+			start_time,
+			end_time,
+			take_time
+		) VALUES (
+			#{user.id},
+			#{className},
+			#{methodName},
+			#{connId},
+			#{requestMsg},
+			#{ipAddr},
+			#{type},
+			#{reponseMsg},
+			#{mdn},
+			#{startTime},
+			#{endTime},
+			#{takeTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE web_log SET 	
+			user_id = #{user.id},
+			class_name = #{className},
+			method_name = #{methodName},
+			conn_id = #{connId},
+			request_msg = #{requestMsg},
+			ip_addr = #{ipAddr},
+			type = #{type},
+			reponse_msg = #{reponseMsg},
+			mdn = #{mdn},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			take_time = #{takeTime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM web_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE web_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WebLog" statementType="STATEMENT">
+		select * FROM web_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

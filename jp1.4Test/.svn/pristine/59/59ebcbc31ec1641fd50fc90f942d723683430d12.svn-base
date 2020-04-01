@@ -1,0 +1,166 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	var data = JSON.parse(localStorage.getItem("faultcategorychartdata"));
+	var cityMap = {
+	  'SJ':'it单',
+	  'GDNOC':'集团单',
+	  'WH':'10000号单',
+	  'GZ':'广州市',
+	  'SZ':'深圳市',
+	  'SG':'韶关',
+	  'HY':'河源市',
+	  'MZ':'梅州市',
+	  'HZ':'惠州',
+	  'SW':'汕尾',
+	  'DG':'东莞',
+	  'ZS':'中山市',
+	  'JM':'江门市',
+	  'YJ':'阳江市',
+	  'ZJ':'湛江市',
+	  'MM':'茂名市',
+	  'ZQ':'肇庆市',
+	  'QY':'清远市',
+	  'ZZ':'潮州市',
+	  'JY':'揭阳市',
+	  'YF':'云浮市',
+	  'ST':'汕头市',
+	  'FS':'佛山',
+	  'ZH':'珠海',
+	};
+	
+	if(data.faultcategory=="其它"){
+		for(var i=0;i<data.faultcategoryList.length-1; i++){
+			var temp = $("<input type='text' name=uselessFaultcategory["+i+"] value="+data.faultcategoryList[i]+" />");
+			$("#searchForm").append(temp);
+		}
+	}else{
+		$("#faultcategory").val(data.faultcategory);//主要的分类
+	}
+	
+	
+	$("#timeFlag").val(data.timeFlag);
+	if(data.timeFlag=="1"){
+		$("input[name='beginCreateDate']").val(data.day+" 00:00:00");
+		$("input[name='endCreateDate']").val(data.day+" 23:59:59");
+	}else if(data.timeFlag=="2"){
+		$("input[name='beginCreateDate']").val(data.day);
+		$("input[name='endCreateDate']").val(data.day);
+	}
+
+	getCityData();
+	
+	function getCityData(){
+		console.log($("#searchForm").serializeJSON());
+        jp.post("${ctx}/faultcategorystatistic/faultcategorystatistic/cityData",$("#searchForm").serializeJSON(), function (cityData) {
+        	initMyChart(cityData);//data.cityData:[{"city":"GZ","times":"3"},{}]
+        });
+	}
+
+  	function initMyChart(cityData){
+  		var total = 0;
+  		var m2R2Data= [];
+  		for(var i=0; i<cityData.length; i++){
+     		m2R2Data.push({value:cityData[i].times, legendname:cityMap[cityData[i].city],name:cityMap[cityData[i].city]+"  "+cityData[i].times});
+  			total += parseInt(cityData[i].times);
+  		}
+
+  		 option = {
+  		    title: [
+  		    {
+  		        text: data.day,
+  		        textStyle: {
+  		            fontSize: 16,
+  		            color: "black"
+  		        },
+  		        left: "2%"
+  		    },    
+  		    {
+  		        text: '合计',
+  		        subtext: total+'个',
+  		        textStyle:{
+  		            fontSize:20,
+  		            color:"black"
+  		        },
+  		        subtextStyle: {
+  		            fontSize: 20,
+  		            color: 'black'
+  		        },
+  		        textAlign:"center",
+  		        x: '34.5%',
+  		        y: '44%',
+  		    }],
+  		    tooltip: {
+  		        trigger: 'item',
+  		        formatter:function (parms){
+  		          var str=  parms.seriesName+"</br>"+
+  		            parms.marker+""+parms.data.legendname+"</br>"+
+  		            "数量："+ parms.data.value+"</br>"+
+  		            "占比："+ parms.percent+"%";
+  		            return  str ;
+  		        }
+  		    },
+  		    legend: {
+  		        type:"scroll",
+  		        orient: 'vertical',
+  		        left:'70%',
+  		        align:'left',
+  		        top:'middle',
+  		        textStyle: {
+  		            color:'#8C8C8C'
+  		        },
+  		        height:250
+  		    },
+  		    series: [
+  		        {
+  		            name:'标题',
+  		            type:'pie',
+  		            center: ['35%', '50%'],
+  		            radius: ['40%', '65%'],
+  		             clockwise: false, //饼图的扇区是否是顺时针排布
+  		            avoidLabelOverlap: false,
+  		            label: {
+  		                normal: {
+  		                    show: true,
+  		                    position: 'outter',
+  		                     formatter:function (parms){
+  		                         return parms.data.legendname
+  		                     }
+  		                }
+  		            },
+  		            labelLine: {
+  		                normal: {
+  		                  length:5,
+  		                  length2:3,
+  		                  smooth:true,
+  		                }
+  		            },
+  		            data:m2R2Data
+  		        }
+  		    ]
+  		};
+
+		//设置高度
+		$("#mychart").css('height',window.screen.height*0.55);
+
+		var myChart = echarts.init(document.getElementById("mychart"));
+		myChart.setOption(option);
+		
+		//点击事件
+		myChart.on('click', function (params) {
+	        if(params.componentType != "xAxis" && params.componentType != "yAxis"){
+	        	data.city = findKey(cityMap,params.data.legendname);
+		        localStorage.setItem("faultcategorypiedata",JSON.stringify(data));
+				jp.openDialogView(data.day+" "+data.faultcategory+" "+params.data.legendname,"${ctx}/faultcategorystatistic/faultcategorystatistic/subTable",window.screen.width+"", window.screen.height+"");
+	        }
+		})
+  	}
+  	
+  	function findKey (obj,value, compare = (a, b) => a === b) {
+  	  return Object.keys(obj).find(k => compare(obj[k], value))
+  	}
+  	
+})
+
+</script>

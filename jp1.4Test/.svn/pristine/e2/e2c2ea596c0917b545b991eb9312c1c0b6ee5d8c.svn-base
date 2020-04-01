@@ -1,0 +1,378 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.documentchoose.service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.jeeplus.modules.checkresult.entity.Checkresult;
+import com.jeeplus.modules.checkresult.service.CheckresultService;
+import com.jeeplus.modules.documentchoose.entity.Documentchouse;
+import com.jeeplus.modules.documentchoose.mapper.DocumentchouseMapper;
+import com.jeeplus.modules.documentdetect.entity.Documentarydetails;
+import com.jeeplus.modules.documentdetect.entity.Feedback;
+import com.jeeplus.modules.documentdetect.service.DocumentarydetailsService;
+import com.jeeplus.modules.errordocument.entity.Errordocument;
+import com.jeeplus.modules.errordocument.service.ErrordocumentService;
+import com.jeeplus.modules.groupdetails.service.GroupdetailsService;
+import com.jeeplus.modules.overtimedocument.entity.Overtimedocument;
+import com.jeeplus.modules.overtimedocument.service.OvertimedocumentService;
+import com.jeeplus.modules.overtimefeedback.entity.Overtimefeedback;
+import com.jeeplus.modules.overtimefeedback.service.OvertimefeedbackService;
+import com.jeeplus.modules.overtimesign.entity.Overtimesigning;
+import com.jeeplus.modules.overtimesign.service.OvertimesigningService;
+import com.jeeplus.modules.repetitivedocument.entity.Repetitivedocument;
+import com.jeeplus.modules.repetitivedocument.service.RepetitivedocumentService;
+
+/**
+ * 工单抽取Service
+ * @author lxy
+ * @version 2019-08-14
+ */
+@Service
+@Transactional(readOnly = true)
+public class DocumentchouseService extends CrudService<DocumentchouseMapper, Documentchouse> {
+	
+	@Autowired
+	private DocumentarydetailsService documentarydetailsService;
+	
+	@Autowired
+	private OvertimedocumentService overtimedocumentService;
+	
+	@Autowired
+	private OvertimesigningService overtimesigningService;
+	
+	@Autowired
+	private RepetitivedocumentService repetitivedocumentService;
+	
+	@Autowired
+	private ErrordocumentService errordocumentService;
+	
+	@Autowired
+	private OvertimefeedbackService overtimefeedbackService;
+	
+	
+	@Autowired
+	private CheckresultService checkresultService;
+	
+	@Autowired
+	private GroupdetailsService groupdetailsService;
+	
+
+	public Documentchouse get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Documentchouse> findList(Documentchouse documentchouse) {
+		return super.findList(documentchouse);
+	}
+	
+	public Page<Documentchouse> findPage(Page<Documentchouse> page, Documentchouse documentchouse) {
+		return super.findPage(page, documentchouse);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Documentchouse documentchouse) {
+		super.save(documentchouse);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Documentchouse documentchouse) {
+		super.delete(documentchouse);
+	}
+
+	public Page<Documentchouse> getchouse(Documentchouse documentchouse, HttpServletRequest request, HttpServletResponse response) {
+		List<Documentchouse> list = new ArrayList<Documentchouse>();
+		List<Documentchouse> documentchouses = new ArrayList<Documentchouse>();
+		//抽取比例
+		String proportion = documentchouse.getSbillno();
+		//开始时间
+		Date begin = documentchouse.getBeginReportTime();
+		//结束时间
+		Date end = documentchouse.getEndReportTime();
+		//关键词
+		String key = documentchouse.getKey();
+		//业务类型
+		String busytype  = documentchouse.getBusytype();
+		//责任人
+		String people = documentchouse.getPeople();
+		//关键词匹配 故障内容
+		if(!"".equals(key) && key != null ) {
+			Documentarydetails documentarydetails = new Documentarydetails();
+			documentarydetails.setSrepfaultdetail(key);
+			documentarydetails.setBeginReportTime(begin);
+			documentarydetails.setEndReportTime(end);
+			for (Iterator<Documentarydetails> iterator = documentarydetailsService.findList(documentarydetails).iterator(); iterator.hasNext();) {
+				Documentarydetails documentarydetails2 = iterator.next();
+				Documentchouse choose = new Documentchouse();
+				choose.setSbillno(documentarydetails2.getSbillno());
+				choose.setReportTime(documentarydetails2.getReportTime());
+				//判断是否检查
+				List<Checkresult> checkresult = checkresultService.getBySbillno(choose.getSbillno());
+				if (checkresult.size() != 0) {
+					choose.setRemarks("已检查");
+				} else {
+					choose.setRemarks("未检查");
+				}
+				documentchouses.add(choose);
+			}
+		// 业务类型匹配 故障种类	
+		} else if (!"".equals(busytype) && busytype != null) {
+			Documentarydetails documentarydetails = new Documentarydetails();
+			documentarydetails.setSfaultcategory(busytype);
+			documentarydetails.setBeginReportTime(begin);
+			documentarydetails.setEndReportTime(end);
+			for (Iterator<Documentarydetails> iterator = documentarydetailsService.findList(documentarydetails).iterator(); iterator.hasNext();) {
+				Documentarydetails documentarydetails2 = iterator.next();
+				Documentchouse choose = new Documentchouse();
+				choose.setSbillno(documentarydetails2.getSbillno());
+				choose.setReportTime(documentarydetails2.getReportTime());
+				//判断是否检查
+				List<Checkresult> checkresult = checkresultService.getBySbillno(choose.getSbillno());
+				if (checkresult.size() != 0) {
+					choose.setRemarks("已检查");
+				} else {
+					choose.setRemarks("未检查");
+				}
+				documentchouses.add(choose);
+			}
+		//责任人 匹配 结单信息  反馈内容的工号匹配	如#180
+		} else if (!"".equals(people) && people != null) {
+			Documentarydetails documentarydetails = new Documentarydetails();
+			documentarydetails.setBeginReportTime(begin);
+			documentarydetails.setEndReportTime(end);
+			for (Iterator<Documentarydetails> iterator = documentarydetailsService.findList(documentarydetails).iterator(); iterator.hasNext();) {
+				Documentarydetails documentarydetails2 = iterator.next();
+				//判断是否存在该责任人  结单信息
+				if ( documentarydetails2.getSprocesssummary().contains(people) ) {
+					//包含
+					Documentchouse choose = new Documentchouse();
+					choose.setSbillno(documentarydetails2.getSbillno());
+					choose.setReportTime(documentarydetails2.getReportTime());
+					//判断是否检查
+					List<Checkresult> checkresult = checkresultService.getBySbillno(choose.getSbillno());
+					if (checkresult.size() != 0) {
+						choose.setRemarks("已检查");
+					} else {
+						choose.setRemarks("未检查");
+					}
+					documentchouses.add(choose);
+				} else {//不包含
+					//判断结单信息是否有该责任人
+					List<Feedback> feebackList = documentarydetailsService.getFeedbackList(documentarydetails2);
+					for (Feedback feedback : feebackList) {
+						if ( feedback.getSprocdesc().contains(people) ) {
+							//包含
+							Documentchouse choose = new Documentchouse();
+							choose.setSbillno(documentarydetails2.getSbillno());
+							choose.setReportTime(documentarydetails2.getReportTime());
+							//判断是否检查
+							List<Checkresult>  checkresult = checkresultService.getBySbillno(choose.getSbillno());
+							if (checkresult.size() != 0) {
+								choose.setRemarks("已检查");
+							} else {
+								choose.setRemarks("未检查");
+							}
+							documentchouses.add(choose);
+						}
+					}
+					
+				}
+			}
+			
+			
+		} else if (!"".equals(proportion) && proportion != null) {
+			//获取超时的工单
+			Overtimedocument overtimedocument = new Overtimedocument();
+			overtimedocument.setBeginReportTime(begin);
+			overtimedocument.setEndReportTime(end);
+			List<Overtimedocument> overtimedocumentLlist = overtimedocumentService.findList(overtimedocument);
+			//抽取比例
+			int a = (overtimedocumentLlist.size()*Integer.parseInt(proportion))/100;
+			if (overtimedocumentLlist.size() != 0 && a == 0) {
+				a=1;
+			}
+			for (int i = 0; i < a; i++) {
+				Documentchouse document = new Documentchouse();
+				document.setReportTime(overtimedocumentLlist.get(i).getReportTime());
+				document.setSbillno(overtimedocumentLlist.get(i).getSbillno());
+				document.setResult(overtimedocumentLlist.get(i).getFaultcategory() +" - "+ overtimedocumentLlist.get(i).getOvertime());
+				document.setGroup(overtimedocumentLlist.get(i).getDutyGroup());
+				document.setPeople(overtimedocumentLlist.get(i).getDutyPeople());
+				//判断是否检查
+				List<Checkresult>  checkresult = checkresultService.getBySbillno(overtimedocumentLlist.get(i).getSbillno());
+				if (checkresult.size() != 0) {
+					document.setRemarks("已检查");
+				} else {
+					document.setRemarks("未检查");
+				}
+				documentchouses.add(document);
+			}
+			
+			
+			//获取签单超时
+			Overtimesigning Overtimesigning = new Overtimesigning();
+			Overtimesigning.setBeginReportTime(begin);
+			Overtimesigning.setEndReportTime(end);
+			List<Overtimesigning> overtimesigningLlist = overtimesigningService.findList(Overtimesigning);
+			//100%抽取
+			for (int i = 0; i < overtimesigningLlist.size(); i++) {
+				Documentchouse document = new Documentchouse();
+				document.setReportTime(overtimesigningLlist.get(i).getReportTime());
+				document.setSbillno(overtimesigningLlist.get(i).getSbillno());
+				document.setResult(overtimesigningLlist.get(i).getFaultcategory()+" - "+overtimesigningLlist.get(i).getOvertimesigin());
+				document.setGroup(overtimesigningLlist.get(i).getDutyGroup());
+				document.setPeople(overtimesigningLlist.get(i).getDutyPeople());
+				//判断是否检查
+				List<Checkresult>  checkresult = checkresultService.getBySbillno(overtimesigningLlist.get(i).getSbillno());
+				if (checkresult.size() != 0) {
+					document.setRemarks("已检查");
+				} else {
+					document.setRemarks("未检查");
+				}
+				documentchouses.add(document);
+			}
+					
+			//获取重复退单
+			Repetitivedocument repetitiveDocument = new Repetitivedocument();
+			repetitiveDocument.setBeginReportTime(begin);
+			repetitiveDocument.setEndReportTime(end);
+			List<Repetitivedocument> repetitivedocumentLlist = repetitivedocumentService.findList(repetitiveDocument);
+			//抽取比例
+			int c = (repetitivedocumentLlist.size()*Integer.parseInt(proportion))/100;
+			if (repetitivedocumentLlist.size() != 0 && c == 0) {
+				c=1;
+			}
+			for (int i = 0; i < c; i++) {
+				Documentchouse document = new Documentchouse();
+				document.setReportTime(repetitivedocumentLlist.get(i).getReportTime());
+				document.setSbillno(repetitivedocumentLlist.get(i).getSbillno());
+				document.setResult(repetitivedocumentLlist.get(i).getFaultcategory()+" - 重复退单");
+				document.setGroup(repetitivedocumentLlist.get(i).getDutyGroup());
+				document.setPeople(repetitivedocumentLlist.get(i).getDutyPeople());
+				List<Checkresult>  checkresult = checkresultService.getBySbillno(repetitivedocumentLlist.get(i).getSbillno());
+				if (checkresult.size() != 0) {
+					document.setRemarks("已检查");
+				} else {
+					document.setRemarks("未检查");
+				}
+				documentchouses.add(document);
+			}
+					
+			//异常工单
+			Errordocument errordocument = new Errordocument();
+			errordocument.setBeginReportTime(begin);
+			errordocument.setEndReportTime(end);
+			List<Errordocument> errordocumentLlist = errordocumentService.findList(errordocument);
+			//抽取比例
+			int d = (errordocumentLlist.size()*Integer.parseInt(proportion))/100;
+			if (errordocumentLlist.size() != 0 && d == 0) {
+				d=1;
+			}
+			for (int i = 0; i < d; i++) {
+				Documentchouse document = new Documentchouse();
+				document.setReportTime(errordocumentLlist.get(i).getReportTime());
+				document.setSbillno(errordocumentLlist.get(i).getSbillno());
+				document.setResult(errordocumentLlist.get(i).getFaultcategory()+" - "+errordocumentLlist.get(i).getCheckresult());
+				document.setGroup(errordocumentLlist.get(i).getDutyGroup());
+				document.setPeople(errordocumentLlist.get(i).getDutyPeople());
+				List<Checkresult>  checkresult = checkresultService.getBySbillno(errordocumentLlist.get(i).getSbillno());
+				if (checkresult.size() != 0) {
+					document.setRemarks("已检查");
+				} else {
+					document.setRemarks("未检查");
+				}
+				documentchouses.add(document);
+			}
+					
+			//反馈超时
+			Overtimefeedback overtimefeedback = new Overtimefeedback();
+			overtimefeedback.setBeginReportTime(begin);
+			overtimefeedback.setEndReportTime(end);
+			List<Overtimefeedback> overtimefeedbackLlist = overtimefeedbackService.findList(overtimefeedback);
+			//抽取比例
+			int e = (overtimefeedbackLlist.size() * Integer.parseInt(proportion)) / 100;
+			if (overtimefeedbackLlist.size() != 0 && e == 0) {
+				e=1;
+			}
+			for (int i = 0; i < e; i++) {
+				Documentchouse document = new Documentchouse();
+				document.setReportTime(overtimefeedbackLlist.get(i).getReportTime());
+				document.setSbillno(overtimefeedbackLlist.get(i).getSbillno());
+				document.setResult(overtimefeedbackLlist.get(i).getFaultcategory() +" - "+overtimefeedbackLlist.get(i).getFeedback());
+				document.setGroup(overtimefeedbackLlist.get(i).getDutyGroup());
+				document.setPeople(overtimefeedbackLlist.get(i).getDutyPeople());
+				List<Checkresult>  checkresult = checkresultService.getBySbillno(overtimefeedbackLlist.get(i).getSbillno());
+				if (checkresult.size() != 0) {
+					document.setRemarks("已检查");
+				} else {
+					document.setRemarks("未检查");
+				}
+				documentchouses.add(document);
+			}
+		}
+		Page<Documentchouse> page = new Page<Documentchouse>(request, response);
+		page.setList(documentchouses);
+		page.setCount(documentchouses.size());
+		return page;
+	}
+
+	public AjaxJson saveCheckResult(Documentarydetails documentarydetails) {
+		AjaxJson j = new AjaxJson();
+		String people = documentarydetails.getPeople();//责任人
+		//String group = documentarydetails.getGroup();//责任班组
+		List<Checkresult> check = checkresultService.getBySbillno(documentarydetails.getSbillno());
+		if (check.size() == 0) {
+			//无责任人
+			if (people == null || "".equals(people.trim())) {
+				Checkresult checkresult = new Checkresult();
+				checkresult.setSbillno(documentarydetails.getSbillno());//'单据编号',
+				checkresult.setHasproblem(documentarydetails.getProblem());//存在问题
+				checkresult.setDetails(documentarydetails.getDetails());//详细情况
+				//checkresult.setDutyGroup(group);//责任班组
+				checkresult.setDcreatetime(new Date());//创建时间
+				//保存
+				checkresultService.save(checkresult);
+				j.setSuccess(true);
+				j.setMsg("保存成功");
+			
+			} else { //存在责任人
+				String[] peoples = people.split(",");
+				for (int i = 0; i < peoples.length; i++) {
+					if ( !"".equals(peoples[i].trim()) && peoples[i] != null) {
+						Checkresult checkresult = new Checkresult();
+						checkresult.setSbillno(documentarydetails.getSbillno());//'单据编号',
+						checkresult.setHasproblem(documentarydetails.getProblem());//存在问题
+						checkresult.setDetails(documentarydetails.getDetails());//详细情况
+						checkresult.setDutyGroup(groupdetailsService.getbyName(peoples[i]).getGGroup());//责任班组
+						checkresult.setDutyPeople(peoples[i]);;//责任人
+						checkresult.setDcreatetime(new Date());//创建时间
+						//保存
+						checkresultService.save(checkresult);
+						
+					}
+				}
+				j.setSuccess(true);
+				j.setMsg("保存成功");
+			}
+		} else {
+			j.setSuccess(true);
+			j.setMsg("请勿重复提交");
+		}
+		return j;
+	}
+	
+}

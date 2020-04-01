@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.doctor.mapper.SdDoctorInfMapper">
+    
+	<sql id="sdDoctorInfColumns">
+		a.id AS "id",
+		a.openid AS "openid",
+		a.fullname AS "fullname",
+		a.mobileno AS "mobileno",
+		a.hospital AS "hospital",
+		a.department AS "department",
+		a.doctortitle AS "doctortitle",
+		a.introduction AS "introduction",
+		a.auditstate AS "auditstate",
+		a.headicon AS "headicon",
+		a.createtime AS "createtime",
+		a.receptionstate AS "receptionstate",
+		a.receptionfee AS "receptionfee",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="sdDoctorInfJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SdDoctorInf" >
+		SELECT 
+			<include refid="sdDoctorInfColumns"/>
+		FROM sd_doctor_inf a
+		<include refid="sdDoctorInfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SdDoctorInf" >
+		SELECT 
+			<include refid="sdDoctorInfColumns"/>
+		FROM sd_doctor_inf a
+		<include refid="sdDoctorInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="fullname != null and fullname != ''">
+				AND a.fullname = #{fullname}
+			</if>
+			<if test="mobileno != null and mobileno != ''">
+				AND a.mobileno = #{mobileno}
+			</if>
+			<if test="hospital != null and hospital != ''">
+				AND a.hospital = #{hospital}
+			</if>
+			<if test="department != null and department != ''">
+				AND a.department = #{department}
+			</if>
+			<if test="doctortitle != null and doctortitle != ''">
+				AND a.doctortitle = #{doctortitle}
+			</if>
+			<if test="auditstate != null and auditstate != ''">
+				AND a.auditstate = #{auditstate}
+			</if>
+			<if test="receptionstate != null and receptionstate != ''">
+				AND a.receptionstate = #{receptionstate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SdDoctorInf" >
+		SELECT 
+			<include refid="sdDoctorInfColumns"/>
+		FROM sd_doctor_inf a
+		<include refid="sdDoctorInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sd_doctor_inf(
+			openid,
+			fullname,
+			mobileno,
+			hospital,
+			department,
+			doctortitle,
+			introduction,
+			auditstate,
+			headicon,
+			createtime,
+			receptionstate,
+			receptionfee,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{openid},
+			#{fullname},
+			#{mobileno},
+			#{hospital},
+			#{department},
+			#{doctortitle},
+			#{introduction},
+			#{auditstate},
+			#{headicon},
+			#{createtime},
+			#{receptionstate},
+			#{receptionfee},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sd_doctor_inf SET 	
+			openid = #{openid},
+			fullname = #{fullname},
+			mobileno = #{mobileno},
+			hospital = #{hospital},
+			department = #{department},
+			doctortitle = #{doctortitle},
+			introduction = #{introduction},
+			auditstate = #{auditstate},
+			headicon = #{headicon},
+			createtime = #{createtime},
+			receptionstate = #{receptionstate},
+			receptionfee = #{receptionfee},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sd_doctor_inf
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sd_doctor_inf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SdDoctorInf" statementType="STATEMENT">
+		select * FROM sd_doctor_inf  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

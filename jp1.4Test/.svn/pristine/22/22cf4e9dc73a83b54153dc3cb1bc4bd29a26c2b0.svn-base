@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.personalfunction.mapper.EdPersonalfunctionInfMapper">
+    
+	<sql id="edPersonalfunctionInfColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.remarks AS "remarks",
+		a.elderid AS "elderid.id",
+		a.assesstime AS "assesstime",
+		a.shili AS "shili",
+		a.shilixufuzhuqi AS "shilixufuzhuqi",
+		a.tingli AS "tingli",
+		a.tinglixufuzhuqi AS "tinglixufuzhuqi",
+		a.yuyanbiaoda AS "yuyanbiaoda",
+		a.lijienengli AS "lijienengli",
+		a.huodongnengli AS "huodongnengli",
+		a.sanyueneidiedao AS "sanyueneidiedao",
+		a.sanyueneidiedaocishu AS "sanyueneidiedaocishu",
+				
+				
+				
+				
+				
+				
+				
+		elderid.funame AS "elderid.funame"
+	</sql>
+	
+	<sql id="edPersonalfunctionInfJoins">
+		
+		LEFT JOIN ed_elder_inf elderid ON elderid.id = a.elderid
+	</sql>
+	
+    
+	<select id="get" resultType="EdPersonalfunctionInf" >
+		SELECT 
+			<include refid="edPersonalfunctionInfColumns"/>
+		FROM ed_personalfunction_inf a
+		<include refid="edPersonalfunctionInfJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EdPersonalfunctionInf" >
+		SELECT 
+			<include refid="edPersonalfunctionInfColumns"/>
+		FROM ed_personalfunction_inf a
+		<include refid="edPersonalfunctionInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="elderid != null and elderid.id != null and elderid.id != ''">
+				AND a.elderid = #{elderid.id}
+			</if>
+			<if test="assesstime != null and assesstime != ''">
+				AND a.assesstime = #{assesstime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EdPersonalfunctionInf" >
+		SELECT 
+			<include refid="edPersonalfunctionInfColumns"/>
+		FROM ed_personalfunction_inf a
+		<include refid="edPersonalfunctionInfJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ed_personalfunction_inf(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			remarks,
+			elderid,
+			assesstime,
+			shili,
+			shilixufuzhuqi,
+			tingli,
+			tinglixufuzhuqi,
+			yuyanbiaoda,
+			lijienengli,
+			huodongnengli,
+			sanyueneidiedao,
+			sanyueneidiedaocishu
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{remarks},
+			#{elderid.id},
+			#{assesstime},
+			#{shili},
+			#{shilixufuzhuqi},
+			#{tingli},
+			#{tinglixufuzhuqi},
+			#{yuyanbiaoda},
+			#{lijienengli},
+			#{huodongnengli},
+			#{sanyueneidiedao},
+			#{sanyueneidiedaocishu}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ed_personalfunction_inf SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			elderid = #{elderid.id},
+			assesstime = #{assesstime},
+			shili = #{shili},
+			shilixufuzhuqi = #{shilixufuzhuqi},
+			tingli = #{tingli},
+			tinglixufuzhuqi = #{tinglixufuzhuqi},
+			yuyanbiaoda = #{yuyanbiaoda},
+			lijienengli = #{lijienengli},
+			huodongnengli = #{huodongnengli},
+			sanyueneidiedao = #{sanyueneidiedao},
+			sanyueneidiedaocishu = #{sanyueneidiedaocishu}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ed_personalfunction_inf
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ed_personalfunction_inf SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="EdPersonalfunctionInf" statementType="STATEMENT">
+		select * FROM ed_personalfunction_inf  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

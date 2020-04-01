@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.nursingclass.mapper.EdNursingclassLogMapper">
+    
+	<sql id="edNursingclassLogColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.remarks AS "remarks",
+		a.elderid AS "elderid.id",
+		a.assesstime AS "assesstime",
+		a.richanghuodongnengli AS "richanghuodongnengli",
+		a.zhili AS "zhili",
+		a.hulijibie AS "hulijibie",
+		a.assessor1 AS "assessor1.id",
+		a.assessor2 AS "assessor2.id",
+		a.assessor1dept AS "assessor1dept.id",
+		a.assessor2dept AS "assessor2dept.id",
+		a.zhangzhehuojiashu AS "zhangzhehuojiashu",
+		a.qianziriqi AS "qianziriqi",
+				
+				
+				
+				
+				
+				
+				
+		elderid.funame AS "elderid.funame",
+				
+				
+				
+				
+				
+		assessor1.name AS "assessor1.name",
+				
+		assessor2.name AS "assessor2.name",
+				
+		assessor1dept.name AS "assessor1dept.name",
+				
+		assessor2dept.name AS "assessor2dept.name"
+	</sql>
+	
+	<sql id="edNursingclassLogJoins">
+		
+		LEFT JOIN ed_elder_inf elderid ON elderid.id = a.elderid
+		LEFT JOIN sys_user assessor1 ON assessor1.id = a.assessor1
+		LEFT JOIN sys_user assessor2 ON assessor2.id = a.assessor2
+		LEFT JOIN sys_office assessor1dept ON assessor1dept.id = a.assessor1dept
+		LEFT JOIN sys_office assessor2dept ON assessor2dept.id = a.assessor2dept
+	</sql>
+	
+    
+	<select id="get" resultType="EdNursingclassLog" >
+		SELECT 
+			<include refid="edNursingclassLogColumns"/>
+		FROM ed_nursingclass_log a
+		<include refid="edNursingclassLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EdNursingclassLog" >
+		SELECT 
+			<include refid="edNursingclassLogColumns"/>
+		FROM ed_nursingclass_log a
+		<include refid="edNursingclassLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="elderid != null and elderid.id != null and elderid.id != ''">
+				AND a.elderid = #{elderid.id}
+			</if>
+			<if test="assesstime != null and assesstime != ''">
+				AND a.assesstime = #{assesstime}
+			</if>
+			<if test="zhangzhehuojiashu != null and zhangzhehuojiashu != ''">
+				AND a.zhangzhehuojiashu = #{zhangzhehuojiashu}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EdNursingclassLog" >
+		SELECT 
+			<include refid="edNursingclassLogColumns"/>
+		FROM ed_nursingclass_log a
+		<include refid="edNursingclassLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO ed_nursingclass_log(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			remarks,
+			elderid,
+			assesstime,
+			richanghuodongnengli,
+			zhili,
+			hulijibie,
+			assessor1,
+			assessor2,
+			assessor1dept,
+			assessor2dept,
+			zhangzhehuojiashu,
+			qianziriqi
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{remarks},
+			#{elderid.id},
+			#{assesstime},
+			#{richanghuodongnengli},
+			#{zhili},
+			#{hulijibie},
+			#{assessor1.id},
+			#{assessor2.id},
+			#{assessor1dept.id},
+			#{assessor2dept.id},
+			#{zhangzhehuojiashu},
+			#{qianziriqi}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE ed_nursingclass_log SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			elderid = #{elderid.id},
+			assesstime = #{assesstime},
+			richanghuodongnengli = #{richanghuodongnengli},
+			zhili = #{zhili},
+			hulijibie = #{hulijibie},
+			assessor1 = #{assessor1.id},
+			assessor2 = #{assessor2.id},
+			assessor1dept = #{assessor1dept.id},
+			assessor2dept = #{assessor2dept.id},
+			zhangzhehuojiashu = #{zhangzhehuojiashu},
+			qianziriqi = #{qianziriqi}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM ed_nursingclass_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE ed_nursingclass_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="EdNursingclassLog" statementType="STATEMENT">
+		select * FROM ed_nursingclass_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,73 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<script>
+$(document).ready(function() {
+	
+	var width = window.screen.width;
+	var height = window.screen.height;
+	
+	//业务更改
+	$("#ANAAAModifyWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA业务更改窗口","${ctx}/anaaa/anaaa/anaaaModifyWindow",width*0.3+"",height*0.4+"", "");
+	})
+
+	//开启IOS测试
+	$("#ANAAABindPhoneCardWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA开启IOS测试窗口","${ctx}/anaaa/anaaa/anaaaBindPhoneCardWindow",width*0.4+"",height*0.3+"", "");
+	})
+	
+	//关闭IOS测试
+	$("#ANAAAUnbindPhoneCardWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA关闭IOS测试窗口","${ctx}/anaaa/anaaa/anaaaUnbindPhoneCardWindow",width*0.4+"",height*0.3+"", "");
+	})
+	
+	//批量开启/关闭
+	$("#ANAAABindPhoneBatchWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA批量开启/关闭窗口","${ctx}/anaaa/anaaa/anaaaBindPhoneBatchWindow",width*0.7+"",height*0.8+"", "");
+	})
+	
+	//批量操作
+	$("#ANAAABatchOperateWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA批量操作窗口","${ctx}/anaaa/anaaa/anaaaBatchOperateWindow",width*0.7+"",height*0.8+"", "");
+	})
+	
+	//认证日志查询
+	$("#ANAAAAuthLogWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA认证日志查询窗口","${ctx}/anaaa/anaaa/anaaaAuthLogWindow",width*0.7+"",height*0.8+"", "");
+	})
+	
+	//开销户接口日志查询
+	$("#ANAAAAccountLogWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+		jp.openDialog("ANAAA开销户接口日志查询窗口","${ctx}/anaaa/anaaa/anaaaAccountLogWindow",width*0.7+"",height*0.8+"", "");
+	})
+	
+	//MEID维护
+	$("#MeidManagementWindow").click(function(){
+		var anaaaData = {"numberType":$("#numberType").val(),"number":$("#number").val()};
+		sessionStorage.setItem("anaaaData",JSON.stringify(anaaaData));
+		console.log("anaaaData",JSON.stringify(anaaaData));
+//		jp.openDialog("ANAAAMEID维护窗口","${ctx}/anaaa/aNAAA/MeidManagementWindow",width*0.7+"",height*0.8+"", "");
+		jp.openDialog("ANAAAMEID维护窗口","${ctx}/anaaa/meid/list",width*0.7+"",height*0.8+"", "");
+	})
+})
+</script>

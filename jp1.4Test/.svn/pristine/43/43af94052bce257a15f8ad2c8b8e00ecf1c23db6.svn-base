@@ -1,0 +1,55 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.documentconfig.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.jeeplus.modules.documentconfig.entity.Documentconfig;
+import com.jeeplus.modules.documentconfig.mapper.DocumentconfigMapper;
+
+/**
+ * 工单检测规则配置Service
+ * @author zqb
+ * @version 2019-10-15
+ */
+@Service
+@Transactional(readOnly = true)
+public class DocumentconfigService extends CrudService<DocumentconfigMapper, Documentconfig> {
+	@Autowired
+	private DocumentconfigMapper documentconfigMapper;
+	
+	public List<String> findResult() {
+		return documentconfigMapper.findResult();
+	}
+
+
+	public Documentconfig get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Documentconfig> findList(Documentconfig documentconfig) {
+		return super.findList(documentconfig);
+	}
+	
+	public Page<Documentconfig> findPage(Page<Documentconfig> page, Documentconfig documentconfig) {
+		return super.findPage(page, documentconfig);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Documentconfig documentconfig) {
+		super.save(documentconfig);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Documentconfig documentconfig) {
+		super.delete(documentconfig);
+	}
+	
+}

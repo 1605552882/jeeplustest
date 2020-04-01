@@ -1,0 +1,131 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.anaaa.web;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.modules.anaaa.service.AnaaaService;
+
+/**
+ * AnaaaController
+ * @author zqb
+ * @version 2019-10-25
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/anaaa/anaaa")
+public class AnaaaController extends BaseController {
+
+	@Autowired
+	private AnaaaService anaaaService;
+	
+	/**
+	 * Anaaa列表页面
+	 */
+	@RequiresPermissions("anaaa:anaaa:list")
+	@RequestMapping(value = {"list", ""})
+	public String list() {
+		return "modules/anaaa/anaaaList";
+	}
+	
+	/**
+	 * Anaaa业务更改页面
+	 */
+	@RequestMapping("anaaaModifyWindow")
+	public String anaaaModifyWindow() {
+		return "modules/anaaa/anaaaModifyWindow";
+	}
+	
+	/**
+	 * Anaaa业务更改功能
+	 */
+	@ResponseBody
+	@RequestMapping("modify")
+	public AjaxJson modify(HttpServletRequest request) {
+		AjaxJson json = new AjaxJson();
+		json.setSuccess(true);
+		json.setMsg("业务更改成功");
+		return json;
+	}
+	
+	/**
+	 * Anaaa开启IOS测试页面
+	 */
+	@RequestMapping("anaaaBindPhoneCardWindow")
+	public String anaaaBindPhoneCardWindow() {
+		return "modules/anaaa/anaaaBindPhoneCardWindow";
+	}
+	
+	/**
+	 * Anaaa开启IOS测试功能
+	 */
+	@ResponseBody
+	@RequestMapping("bindPhoneCard")
+	public AjaxJson bindPhoneCard(HttpServletRequest request) {
+		AjaxJson json = new AjaxJson();
+		json.setSuccess(true);
+		json.setMsg("开启IOS测试成功");
+		return json;
+	}
+	
+	/**
+	 * Anaaa关闭IOS测试页面
+	 */
+	@RequestMapping("anaaaUnbindPhoneCardWindow")
+	public String anaaaUnbindPhoneCardWindow() {
+		return "modules/anaaa/anaaaUnbindPhoneCardWindow";
+	}
+	
+	/**
+	 * Anaaa关闭IOS测试功能
+	 */
+	@ResponseBody
+	@RequestMapping("unbindPhoneCard")
+	public AjaxJson unbindPhoneCard(HttpServletRequest request) {
+		AjaxJson json = new AjaxJson();
+		json.setSuccess(true);
+		json.setMsg("关闭IOS测试成功");
+		return json;
+	}
+	
+	/**
+	 * Anaaa批量开启/关闭IOS测试页面
+	 */
+	@RequestMapping("anaaaBindPhoneBatchWindow")
+	public String anaaaBindPhoneBatchWindow() {
+		return "modules/anaaa/anaaaBindPhoneBatchWindow";
+	}
+
+	/**
+	 * Anaaa批量操作
+	 */
+	@RequestMapping("anaaaBatchOperateWindow")
+	public String anaaaBatchOperateWindow() {
+		return "modules/anaaa/anaaaBatchOperateWindow";
+	}
+	
+	/**
+	 * Anaaa认证日志查询
+	 */
+	@RequestMapping("anaaaAuthLogWindow")
+	public String anaaaAuthLogWindow() {
+		return "modules/anaaa/anaaaAuthLogWindow";
+	}
+	
+	/**
+	 * Anaaa开销户接口日志查询
+	 */
+	@RequestMapping("anaaaAccountLogWindow")
+	public String anaaaAccountLogWindow() {
+		return "modules/anaaa/anaaaAccountLogWindow";
+	}
+	
+}

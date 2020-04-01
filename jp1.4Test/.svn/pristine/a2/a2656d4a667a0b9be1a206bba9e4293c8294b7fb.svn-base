@@ -1,0 +1,240 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.sys.utils;
+
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.jeeplus.common.utils.CacheUtils;
+import com.jeeplus.common.utils.SpringContextHolder;
+import com.jeeplus.modules.documentconfig.entity.Documentconfig;
+import com.jeeplus.modules.documentconfig.service.DocumentconfigService;
+import com.jeeplus.modules.faultcategorystatistic.service.FaultcategorystatisticService;
+import com.jeeplus.modules.groupdetails.entity.Groupdetails;
+import com.jeeplus.modules.groupdetails.service.GroupdetailsService;
+import com.jeeplus.modules.hotword.entity.Hotword;
+import com.jeeplus.modules.hotword.service.HotwordService;
+import com.jeeplus.modules.sys.entity.DictType;
+import com.jeeplus.modules.sys.entity.DictValue;
+import com.jeeplus.modules.sys.service.DictTypeService;
+
+/**
+ * 字典工具类
+ * @author jeeplus
+ * @version 2016-5-29
+ */
+public class DictUtils {
+	
+
+	private static DictTypeService dictTypeService = SpringContextHolder.getBean(DictTypeService.class);
+	
+	public static final String CACHE_DICT_MAP = "dictMap";
+	
+	private static HotwordService hotwordService = SpringContextHolder.getBean(HotwordService.class);
+	
+	private static DocumentconfigService documentconfigService = SpringContextHolder.getBean(DocumentconfigService.class);
+	
+	private static GroupdetailsService groupdetailsService = SpringContextHolder.getBean(GroupdetailsService.class);
+	
+	private static FaultcategorystatisticService faultcategorystatisticService = SpringContextHolder.getBean(FaultcategorystatisticService.class);
+	
+	/* 获取热词
+	 * @param value
+	 * @param type
+	 * @param defaultLabel
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "unused" })
+	public static List<DictValue> gethotword(){
+		//获取检查结论
+		List<Hotword>  hotwords = hotwordService.findList(new Hotword());
+		List<DictValue> dictList = new ArrayList<DictValue>();
+		for (Hotword hotword : hotwords) {
+			DictValue d = new DictValue();
+			d.setLabel(hotword.getHotword());
+			d.setValue(hotword.getHotword());
+			dictList.add(d);
+		}
+		if (dictList == null){
+			dictList = Lists.newArrayList();
+		}
+		return dictList;
+	}
+	
+	
+	
+	/**
+	 * 
+	 * 获取责任人
+	 * @param value
+	 * @param type
+	 * @param defaultLabel
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "unused" })
+	public static List<DictValue> getdutypeople(){
+		//获取检查结论
+		List<Groupdetails>  groupdetails = groupdetailsService.findList(new Groupdetails());
+		List<DictValue> dictList = new ArrayList<DictValue>();
+		for (Groupdetails groupdetail : groupdetails) {
+			DictValue d = new DictValue();
+			d.setLabel(groupdetail.getGName());
+			d.setValue(groupdetail.getGName());
+			dictList.add(d);
+		}
+		if (dictList == null){
+			dictList = Lists.newArrayList();
+		}
+		return dictList;
+	}
+	
+	/**
+	 * 获取检查结论
+	 * @param value
+	 * @param type
+	 * @param defaultLabel
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "unused" })
+	public static List<DictValue> getDocumentRule(){
+		//获取检查结论
+		List<String>  documentconfigs = documentconfigService.findResult();
+		List<DictValue> dictList = new ArrayList<DictValue>();
+		for (String document : documentconfigs) {
+			DictValue d = new DictValue();
+			d.setLabel(document);
+			d.setValue(document);
+			dictList.add(d);
+		}
+		if (dictList == null){
+			dictList = Lists.newArrayList();
+		}
+		return dictList;
+	}
+	
+	/**
+	 * 获取故障种类
+	 * @param value
+	 * @param type
+	 * @param defaultLabel
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked", "unused" })
+	public static List<DictValue> getFaultcategory(){
+		//获取检查结论
+		List<String>  faultcategorys = faultcategorystatisticService.findFaultcategory();
+		List<DictValue> dictList = new ArrayList<DictValue>();
+		for (String faultcategory : faultcategorys) {
+			DictValue d = new DictValue();
+			d.setLabel(faultcategory);
+			d.setValue(faultcategory);
+			dictList.add(d);
+		}
+		if (dictList == null){
+			dictList = Lists.newArrayList();
+		}
+		return dictList;
+	}
+	
+	
+	
+	public static String getDictLabel(String value, String type, String defaultLabel){
+		if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(value)){
+			for (DictValue dictValue : getDictList(type)){
+				if (value.equals(dictValue.getValue())){
+					return dictValue.getLabel();
+				}
+			}
+		}
+		return defaultLabel;
+	}
+	
+	public static String getDictLabels(String values, String type, String defaultValue){
+		if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(values)){
+			List<String> valueList = Lists.newArrayList();
+			for (String value : StringUtils.split(values, ",")){
+				valueList.add(getDictLabel(value, type, defaultValue));
+			}
+			return StringUtils.join(valueList, ",");
+		}
+		return defaultValue;
+	}
+
+	public static String getDictValue(String label, String type, String defaultLabel){
+		if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(label)){
+			for (DictValue dictValue : getDictList(type)){
+				if (label.equals(dictValue.getLabel())){
+					return dictValue.getValue();
+				}
+			}
+		}
+		return defaultLabel;
+	}
+	
+	public static List<DictValue> getDictList(String type){
+		@SuppressWarnings("unchecked")
+		Map<String, List<DictValue>> dictMap = (Map<String, List<DictValue>>)CacheUtils.get(CACHE_DICT_MAP);
+		if (dictMap==null){
+			dictMap = Maps.newHashMap();
+			for (DictType dictType : dictTypeService.findList(new DictType())){
+				List<DictValue> dictList = dictMap.get(dictType.getType());
+				dictType = dictTypeService.get(dictType.getId());
+				if (dictList != null){
+					dictList.addAll(dictType.getDictValueList());
+				}else{
+					dictMap.put(dictType.getType(), Lists.newArrayList(dictType.getDictValueList()));
+				}
+			}
+			CacheUtils.put(CACHE_DICT_MAP, dictMap);
+		}
+		List<DictValue> dictList = dictMap.get(type);
+		if (dictList == null){
+			dictList = Lists.newArrayList();
+		}
+		return dictList;
+	}
+	
+
+	
+	
+	/*
+	 * 反射根据对象和属性名获取属性值
+	 */
+	public static Object getValue(Object obj, String filed) {
+		try {
+			Class clazz = obj.getClass();
+			PropertyDescriptor pd = new PropertyDescriptor(filed, clazz);
+			Method getMethod = pd.getReadMethod();//获得get方法
+
+			if (pd != null) {
+
+				Object o = getMethod.invoke(obj);//执行get方法返回一个Object
+				return o;
+
+			}
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IntrospectionException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+}
